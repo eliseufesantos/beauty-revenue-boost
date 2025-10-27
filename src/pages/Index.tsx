@@ -26,17 +26,19 @@ const Index = () => {
   };
 
   const scrollToSection = (section: Section) => {
-    setCurrentSection(section);
     setTimeout(() => {
-      const element = document.getElementById(`section-${section}`);
-      if (element) {
-        element.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'start',
-          inline: 'nearest'
-        });
-      }
-    }, 500);
+      setCurrentSection(section);
+      setTimeout(() => {
+        const element = document.getElementById(`section-${section}`);
+        if (element) {
+          element.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start',
+            inline: 'nearest'
+          });
+        }
+      }, 100);
+    }, 300);
   };
 
   const handleQuickCalc = (leads: number, ticket: number) => {

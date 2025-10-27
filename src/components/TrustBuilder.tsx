@@ -19,37 +19,37 @@ export function TrustBuilder({ onStart }: Props) {
         transition={{ duration: 0.6 }}
         className="max-w-2xl w-full"
       >
-        <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
+        <div className="bg-card rounded-2xl p-4 sm:p-6 md:p-8 shadow-lg border border-border">
           <div className="border-b border-t border-border py-4 mb-6">
-            <h2 className="text-2xl font-bold text-center mb-4">ANTES DE CONTINUAR...</h2>
-            <p className="text-lg font-medium mb-2">Por que você deveria confiar nesse diagnóstico?</p>
+            <h2 className="text-xl sm:text-2xl font-bold text-center mb-4">ANTES DE CONTINUAR...</h2>
+            <p className="text-base sm:text-lg font-medium mb-2">Por que você deveria confiar nesse diagnóstico?</p>
           </div>
 
-          <div className="space-y-4 mb-6">
+          <div className="space-y-4 mb-6 text-sm sm:text-base">
             <p>Sou Eliseu Santos, engenheiro de software e fundador da Eucalyptus.</p>
             <p>Criei esse sistema porque EU MESMO sofria com leads esquecidos.</p>
             <p>Hoje uso o MESMO ecossistema para rodar minha consultoria.</p>
             <p className="font-semibold">Não é teoria. É o que funciona.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div className="flex items-center gap-2 text-sm bg-accent/20 p-3 rounded-lg">
-              <Target className="w-5 h-5 text-primary" />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-8">
+            <div className="flex items-center gap-2 text-xs sm:text-sm bg-accent/20 p-3 rounded-lg">
+              <Target className="w-4 h-4 sm:w-5 sm:h-5 text-primary flex-shrink-0" />
               <span>Mesmo sistema que uso</span>
             </div>
-            <div className="flex items-center gap-2 text-sm bg-accent/20 p-3 rounded-lg">
-              <Zap className="w-5 h-5 text-primary" />
+            <div className="flex items-center gap-2 text-xs sm:text-sm bg-accent/20 p-3 rounded-lg">
+              <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-primary flex-shrink-0" />
               <span>3 clínicas atendidas</span>
             </div>
-            <div className="flex items-center gap-2 text-sm bg-accent/20 p-3 rounded-lg">
-              <MapPin className="w-5 h-5 text-primary" />
+            <div className="flex items-center gap-2 text-xs sm:text-sm bg-accent/20 p-3 rounded-lg">
+              <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-primary flex-shrink-0" />
               <span>São Paulo, SP</span>
             </div>
           </div>
 
           <div className="border-t border-b border-border py-4 mb-6">
-            <p className="font-semibold mb-3">As próximas perguntas vão mapear:</p>
-            <ul className="space-y-2">
+            <p className="font-semibold mb-3 text-sm sm:text-base">As próximas perguntas vão mapear:</p>
+            <ul className="space-y-2 text-sm sm:text-base">
               <li className="flex items-start gap-2">
                 <span className="text-primary">✓</span>
                 <span>Onde você perde dinheiro (e quanto)</span>
@@ -71,12 +71,12 @@ export function TrustBuilder({ onStart }: Props) {
 
           <div className="flex items-start gap-3 mb-6 p-4 bg-muted/20 rounded-lg">
             <Checkbox id="consent" checked={checked} onCheckedChange={(c) => setChecked(c as boolean)} />
-            <label htmlFor="consent" className="text-sm cursor-pointer leading-relaxed">
+            <label htmlFor="consent" className="text-xs sm:text-sm cursor-pointer leading-relaxed">
               Entendo que isso é um diagnóstico real, e vou fornecer informações verdadeiras (mesmo que aproximadas)
             </label>
           </div>
 
-          <Button onClick={onStart} disabled={!checked} size="lg" className="w-full text-lg h-14">
+          <Button onClick={onStart} disabled={!checked} size="lg" className="w-full text-sm sm:text-base md:text-lg h-12 sm:h-14">
             COMEÇAR DIAGNÓSTICO COMPLETO
           </Button>
         </div>

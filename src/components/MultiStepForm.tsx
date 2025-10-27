@@ -215,10 +215,10 @@ export function MultiStepForm({ onComplete, initialAnswers }: Props) {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="bg-card rounded-2xl p-8 shadow-lg border border-border"
+              className="bg-card rounded-2xl p-4 sm:p-6 md:p-8 shadow-lg border border-border"
             >
-              <h3 className="text-2xl font-bold mb-2">{question.text}</h3>
-              {question.helper && <p className="text-sm text-muted-foreground mb-6">{question.helper}</p>}
+              <h3 className="text-xl sm:text-2xl font-bold mb-2">{question.text}</h3>
+              {question.helper && <p className="text-xs sm:text-sm text-muted-foreground mb-6">{question.helper}</p>}
 
               {question.type === 'slider' && (
                 <div className="space-y-6">
@@ -230,8 +230,8 @@ export function MultiStepForm({ onComplete, initialAnswers }: Props) {
                     step={1}
                     className="mb-4"
                   />
-                  <p className="text-center text-3xl font-bold text-primary">{(answers[question.id] as number) ?? 5}</p>
-                  <Button onClick={() => handleAnswer((answers[question.id] as number) ?? 5)} size="lg" className="w-full">
+                  <p className="text-center text-2xl sm:text-3xl font-bold text-primary">{(answers[question.id] as number) ?? 5}</p>
+                  <Button onClick={() => handleAnswer((answers[question.id] as number) ?? 5)} size="lg" className="w-full text-sm sm:text-base">
                     CONTINUAR
                   </Button>
                 </div>
@@ -243,9 +243,9 @@ export function MultiStepForm({ onComplete, initialAnswers }: Props) {
                     <button
                       key={option.value}
                       onClick={() => handleAnswer(option.value)}
-                      className="w-full p-4 text-left bg-muted/20 hover:bg-primary/10 border border-border hover:border-primary rounded-xl transition-all"
+                      className="w-full p-3 sm:p-4 text-left bg-muted/20 hover:bg-primary/10 border border-border hover:border-primary rounded-xl transition-all"
                     >
-                      <span className="text-lg">
+                      <span className="text-sm sm:text-base md:text-lg">
                         {option.emoji && <span className="mr-2">{option.emoji}</span>}
                         {option.label}
                       </span>

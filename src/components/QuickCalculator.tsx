@@ -32,15 +32,15 @@ export function QuickCalculator({ onCalculate, onContinue }: Props) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground text-center mb-4 leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground text-center mb-4 leading-tight px-2">
             Quanto Dinheiro Sua Clínica
             <br />
             Perde Por Mês com Desorganização?
           </h1>
 
-          <p className="text-lg text-muted-foreground text-center mb-12">
+          <p className="text-base sm:text-lg text-muted-foreground text-center mb-12 px-2">
             Descubra em 60 segundos os vazamentos invisíveis
-            <br />
+            <br className="hidden sm:block" />
             que estão corroendo sua margem.
           </p>
 
@@ -51,9 +51,9 @@ export function QuickCalculator({ onCalculate, onContinue }: Props) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="bg-card rounded-2xl p-8 shadow-lg border border-border"
+                className="bg-card rounded-2xl p-4 sm:p-6 md:p-8 shadow-lg border border-border"
               >
-                <div className="space-y-8">
+                <div className="space-y-6 sm:space-y-8">
                   <div>
                     <label className="block text-sm font-medium mb-2">
                       Quantos leads você recebe por mês?
@@ -67,7 +67,7 @@ export function QuickCalculator({ onCalculate, onContinue }: Props) {
                       step={10}
                       className="mb-2"
                     />
-                    <p className="text-right text-lg font-semibold text-primary">{leads} leads</p>
+                    <p className="text-right text-base sm:text-lg font-semibold text-primary">{leads} leads</p>
                   </div>
 
                   <div>
@@ -82,10 +82,10 @@ export function QuickCalculator({ onCalculate, onContinue }: Props) {
                       step={100}
                       className="mb-2"
                     />
-                    <p className="text-right text-lg font-semibold text-primary">{formatCurrency(ticket)}</p>
+                    <p className="text-right text-base sm:text-lg font-semibold text-primary">{formatCurrency(ticket)}</p>
                   </div>
 
-                  <Button onClick={handleCalculate} size="lg" className="w-full text-lg h-14">
+                  <Button onClick={handleCalculate} size="lg" className="w-full text-base sm:text-lg h-12 sm:h-14">
                     CALCULAR MEUS VAZAMENTOS
                   </Button>
 
@@ -101,17 +101,17 @@ export function QuickCalculator({ onCalculate, onContinue }: Props) {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
-                className="bg-card rounded-2xl p-8 shadow-xl border-2 border-primary"
+                className="bg-card rounded-2xl p-4 sm:p-6 md:p-8 shadow-xl border-2 border-primary"
               >
                 <div className="flex items-center gap-3 mb-6">
-                  <AlertTriangle className="w-8 h-8 text-primary" />
-                  <h2 className="text-2xl font-bold">ALERTA DE VAZAMENTO DETECTADO</h2>
+                  <AlertTriangle className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+                  <h2 className="text-lg sm:text-xl md:text-2xl font-bold">ALERTA DE VAZAMENTO DETECTADO</h2>
                 </div>
 
-                <p className="text-lg mb-4">Sua clínica pode estar perdendo:</p>
+                <p className="text-base sm:text-lg mb-4">Sua clínica pode estar perdendo:</p>
 
-                <div className="bg-primary/10 rounded-xl p-6 mb-6 text-center">
-                  <p className="text-5xl font-bold text-primary">
+                <div className="bg-primary/10 rounded-xl p-4 sm:p-6 mb-6 text-center">
+                  <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-primary">
                     R$ <CountUp end={leakage} duration={2} separator="." />
                   </p>
                   <p className="text-sm mt-2 text-muted-foreground">por mês</p>
@@ -149,17 +149,17 @@ export function QuickCalculator({ onCalculate, onContinue }: Props) {
                   </li>
                 </ul>
 
-                <p className="text-center mb-6 font-medium">
+                <p className="text-center mb-6 font-medium text-sm sm:text-base">
                   Quer ver o número REAL da sua clínica?
                   <br />
                   <span className="text-sm text-muted-foreground">(Leva apenas 2 minutos)</span>
                 </p>
 
                 <div className="space-y-3">
-                  <Button onClick={onContinue} size="lg" className="w-full text-lg h-14">
+                  <Button onClick={onContinue} size="lg" className="w-full text-sm sm:text-base md:text-lg h-12 sm:h-14">
                     SIM, QUERO O DIAGNÓSTICO COMPLETO
                   </Button>
-                  <Button variant="outline" size="lg" className="w-full">
+                  <Button variant="outline" size="lg" className="w-full text-sm sm:text-base">
                     Não, vou continuar perdendo dinheiro
                   </Button>
                 </div>
