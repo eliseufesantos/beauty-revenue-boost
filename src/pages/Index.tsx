@@ -57,47 +57,52 @@ const Index = () => {
 
   const handleAnalyzingComplete = () => {
     scrollToSection('results');
+    // Auto-avançar para lead capture após 10 segundos
     setTimeout(() => {
       scrollToSection('lead');
-    }, 3000);
+    }, 10000);
   };
 
   return (
     <div className="bg-background">
-      <div id="section-quick" ref={sectionRefs.quick}>
-        {currentSection === 'quick' && (
+      {currentSection === 'quick' && (
+        <div id="section-quick" ref={sectionRefs.quick}>
           <QuickCalculator
             onCalculate={handleQuickCalc}
             onContinue={() => scrollToSection('trust')}
           />
-        )}
-      </div>
+        </div>
+      )}
 
-      <div id="section-trust" ref={sectionRefs.trust}>
-        {(currentSection === 'trust' || state.currentStep >= 1) && (
+      {currentSection === 'trust' && (
+        <div id="section-trust" ref={sectionRefs.trust}>
           <TrustBuilder onStart={handleStartAssessment} />
-        )}
-      </div>
+        </div>
+      )}
 
-      <div id="section-form" ref={sectionRefs.form}>
-        {(currentSection === 'form' || state.currentStep >= 2) && (
+      {currentSection === 'form' && (
+        <div id="section-form" ref={sectionRefs.form}>
           <MultiStepForm onComplete={handleFormComplete} initialAnswers={state.answers} />
-        )}
-      </div>
+        </div>
+      )}
 
-      <div id="section-analyzing" ref={sectionRefs.analyzing}>
-        {currentSection === 'analyzing' && <AnalyzingLoader onComplete={handleAnalyzingComplete} />}
-      </div>
+      {currentSection === 'analyzing' && (
+        <div id="section-analyzing" ref={sectionRefs.analyzing}>
+          <AnalyzingLoader onComplete={handleAnalyzingComplete} />
+        </div>
+      )}
 
-      <div id="section-results" ref={sectionRefs.results}>
-        {currentSection === 'results' && results && <ResultsDashboard results={results} />}
-      </div>
+      {currentSection === 'results' && results && (
+        <div id="section-results" ref={sectionRefs.results}>
+          <ResultsDashboard results={results} />
+        </div>
+      )}
 
-      <div id="section-lead" ref={sectionRefs.lead}>
-        {currentSection === 'lead' && results && (
+      {currentSection === 'lead' && results && (
+        <div id="section-lead" ref={sectionRefs.lead}>
           <LeadCaptureForm results={results} answers={state.answers} />
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
