@@ -7,11 +7,11 @@ interface Props {
 }
 
 const messages = [
-  'Analisando seus dados...',
-  'Comparando com 47 clínicas...',
-  'Calculando vazamentos...',
-  'Identificando oportunidades...',
-  'Gerando seu diagnóstico...',
+  '🧠 Analisando seus dados...',
+  '💡 Processando 8 variáveis...',
+  '📊 Comparando com 47 clínicas...',
+  '💰 Calculando vazamentos ocultos...',
+  '🎯 Gerando scorecard personalizado...',
 ];
 
 export function AnalyzingLoader({ onComplete }: Props) {
@@ -19,10 +19,13 @@ export function AnalyzingLoader({ onComplete }: Props) {
   const [messageIndex, setMessageIndex] = useState(0);
 
   useEffect(() => {
+    console.log('Loader started');
+    
     const interval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
           clearInterval(interval);
+          console.log('Loader finished');
           setTimeout(onComplete, 500);
           return 100;
         }

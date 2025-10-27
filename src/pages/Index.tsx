@@ -28,8 +28,15 @@ const Index = () => {
   const scrollToSection = (section: Section) => {
     setCurrentSection(section);
     setTimeout(() => {
-      sectionRefs[section].current?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
+      const element = document.getElementById(`section-${section}`);
+      if (element) {
+        element.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start',
+          inline: 'nearest'
+        });
+      }
+    }, 500);
   };
 
   const handleQuickCalc = (leads: number, ticket: number) => {
@@ -57,7 +64,7 @@ const Index = () => {
 
   return (
     <div className="bg-background">
-      <div ref={sectionRefs.quick}>
+      <div id="section-quick" ref={sectionRefs.quick}>
         {currentSection === 'quick' && (
           <QuickCalculator
             onCalculate={handleQuickCalc}
@@ -66,27 +73,27 @@ const Index = () => {
         )}
       </div>
 
-      <div ref={sectionRefs.trust}>
+      <div id="section-trust" ref={sectionRefs.trust}>
         {(currentSection === 'trust' || state.currentStep >= 1) && (
           <TrustBuilder onStart={handleStartAssessment} />
         )}
       </div>
 
-      <div ref={sectionRefs.form}>
+      <div id="section-form" ref={sectionRefs.form}>
         {(currentSection === 'form' || state.currentStep >= 2) && (
           <MultiStepForm onComplete={handleFormComplete} initialAnswers={state.answers} />
         )}
       </div>
 
-      <div ref={sectionRefs.analyzing}>
+      <div id="section-analyzing" ref={sectionRefs.analyzing}>
         {currentSection === 'analyzing' && <AnalyzingLoader onComplete={handleAnalyzingComplete} />}
       </div>
 
-      <div ref={sectionRefs.results}>
+      <div id="section-results" ref={sectionRefs.results}>
         {currentSection === 'results' && results && <ResultsDashboard results={results} />}
       </div>
 
-      <div ref={sectionRefs.lead}>
+      <div id="section-lead" ref={sectionRefs.lead}>
         {currentSection === 'lead' && results && (
           <LeadCaptureForm results={results} answers={state.answers} />
         )}
