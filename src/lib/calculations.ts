@@ -42,35 +42,81 @@ export function calculateQuickLeakage(inputs: QuickCalcInputs): number {
 }
 
 export function calculateLeakages(answers: Answers): CalculationResults {
-  const { leads, ticket, attendRate, hasFollowUp, manualHours, conversionRate, returnRate } = answers;
+  const { leads, ticket, attendRate, hasFollowUp, manualHours, conversionRate, returnRate, dataManagement } = answers;
 
-  // 1. Leads esquecidos
+  // 1. Leads esquecidos (Recepção)
   const leakage1 = leads * (1 - attendRate / 10) * ticket * 0.4;
 
-  // 2. Follow-up perdido
+  // 2. Follow-up perdido (Inteligência)
   const followUpMult = hasFollowUp === 'no' ? 0.35 : hasFollowUp === 'inconsistent' ? 0.2 : 0.05;
   const leakage2 = leads * ticket * followUpMult;
 
-  // 3. Tempo desperdiçado
+  // 3. Tempo desperdiçado (Automação)
   const leakage3 = manualHours * 30 * 80 * 0.75;
 
-  // 4. Retorno baixo
+  // 4. Retorno baixo (Expansão)
   const returnMult =
     returnRate === '<30%' ? 0.15 : returnRate === '30-50%' ? 0.08 : returnRate === '60%+' ? 0.02 : 0.12;
   const clients = leads * (conversionRate / 10) * 0.4;
   const leakage4 = clients * ticket * 1.5 * returnMult;
 
-  const total = leakage1 + leakage2 + leakage3 + leakage4;
+  // 5. Dados desorganizados
+  const dataMult =
+    dataManagement === 'whatsapp' ? 0.12 :
+    dataManagement === 'spreadsheet' ? 0.08 :
+    dataManagement === 'basic_crm' ? 0.04 : 0.01;
+  const leakage5 = leads * ticket * dataMult;
 
   const scores = calculateScores(answers);
 
+  // Calcula TODAS as camadas possíveis com scores
+  const allLeakages = [
+    {
+      camada: 'Recepção não otimizada',
+      valor: leakage1,
+      score: scores.recepcao,
+      prioridade: leakage1 > leads * ticket * 0.15 ? 'critical' : leakage1 > leads * ticket * 0.08 ? 'high' : 'medium',
+    },
+    {
+      camada: 'Inteligência de conversão',
+      valor: leakage2,
+      score: scores.inteligencia,
+      prioridade: leakage2 > leads * ticket * 0.2 ? 'critical' : leakage2 > leads * ticket * 0.1 ? 'high' : 'medium',
+    },
+    {
+      camada: 'Automação inexistente',
+      valor: leakage3,
+      score: scores.automacao,
+      prioridade: leakage3 > 5000 ? 'high' : 'medium',
+    },
+    {
+      camada: 'Expansão limitada',
+      valor: leakage4,
+      score: scores.expansao,
+      prioridade: leakage4 > leads * ticket * 0.1 ? 'high' : 'medium',
+    },
+    {
+      camada: 'Dados desorganizados',
+      valor: leakage5,
+      score: scores.dados,
+      prioridade: leakage5 > leads * ticket * 0.08 ? 'high' : 'medium',
+    },
+  ];
+
+  // Ordena por VALOR (maior primeiro) e pega TOP 4
+  const sortedLeakages = allLeakages
+    .sort((a, b) => b.valor - a.valor)
+    .slice(0, 4)
+    .map((leak) => ({
+      type: leak.prioridade as 'critical' | 'high' | 'medium',
+      label: leak.camada,
+      value: Math.round(leak.valor),
+    }));
+
+  const total = leakage1 + leakage2 + leakage3 + leakage4 + leakage5;
+
   return {
-    leakages: [
-      { type: 'critical', label: 'Recepção não otimizada', value: leakage1 },
-      { type: 'high', label: 'Inteligência de conversão', value: leakage2 },
-      { type: 'medium', label: 'Automação inexistente', value: leakage3 },
-      { type: 'medium', label: 'Expansão limitada', value: leakage4 },
-    ],
+    leakages: sortedLeakages,
     total,
     paybackDays: Math.round((25000 / total) * 30),
     scores,

@@ -96,7 +96,7 @@ const Index = () => {
 
       {currentSection === 'results' && results && (
         <div id="section-results" ref={sectionRefs.results}>
-          <ResultsDashboard results={results} />
+          <ResultsDashboard results={results} answers={state.answers as Answers} />
         </div>
       )}
 

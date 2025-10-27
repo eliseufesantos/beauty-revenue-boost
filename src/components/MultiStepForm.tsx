@@ -19,10 +19,10 @@ interface Question {
   options?: Array<{ value: any; label: string; emoji?: string }>;
   min?: number;
   max?: number;
-  insight: {
+  insight: (value: any) => {
     icon: any;
     title: string;
-    body: string | ((value: any) => string);
+    body: string;
   };
 }
 
@@ -34,11 +34,26 @@ const questions: Question[] = [
     type: 'slider',
     min: 0,
     max: 10,
-    insight: {
-      icon: Lightbulb,
-      title: 'INSIGHT',
-      body: (value: number) =>
-        `Se você atende apenas ${value} de 10 leads, está perdendo ${((10 - value) / 10) * 100}% da receita potencial.`,
+    insight: (value: number) => {
+      if (value >= 8) {
+        return {
+          icon: Award,
+          title: 'PARABÉNS!',
+          body: `Você atende bem! ${value} de 10 leads é um ótimo número. Seu desafio agora é manter essa qualidade enquanto escala o volume. Com automação inteligente, dá pra chegar em 9-10/10 sem perder o toque humano.`,
+        };
+      }
+      if (value >= 5) {
+        return {
+          icon: AlertTriangle,
+          title: 'POTENCIAL IDENTIFICADO',
+          body: `Você atende a maioria (${value}/10), mas está deixando ${10 - value} leads sem resposta. Isso representa ${((10 - value) / 10 * 100).toFixed(0)}% de oportunidades perdidas. Com triagem automática, você pode subir pra 8-9/10 facilmente.`,
+        };
+      }
+      return {
+        icon: AlertTriangle,
+        title: 'ATENÇÃO: VAZAMENTO CRÍTICO',
+        body: `Você perde mais da metade dos leads! Atender apenas ${value} de 10 significa que ${((10 - value) / 10 * 100).toFixed(0)}% da sua receita potencial está indo embora. A boa notícia? Isso é fácil de resolver com automação de recepção.`,
+      };
     },
   },
   {
@@ -51,10 +66,33 @@ const questions: Question[] = [
       { value: '2-5h', label: '2-5h', emoji: '🟠' },
       { value: '+1day', label: '+1 dia', emoji: '🔴' },
     ],
-    insight: {
-      icon: AlertTriangle,
-      title: 'ATENÇÃO',
-      body: 'Leads que recebem resposta em +2h têm 400% menos chance de conversão. Tempo de resposta é o fator #1 de conversão.',
+    insight: (value: string) => {
+      if (value === '<5min') {
+        return {
+          icon: Award,
+          title: 'EXCELENTE!',
+          body: 'Tempo de resposta rápido (<5min) é o MAIOR diferencial competitivo. Você está à frente de 90% do mercado. Manter isso em escala é o próximo desafio - e automação ajuda nisso.',
+        };
+      }
+      if (value === '30min-2h') {
+        return {
+          icon: Lightbulb,
+          title: 'BOM, MAS PODE MELHORAR',
+          body: 'Tempo ok, mas cada minuto conta. Estudos mostram que respostas em <5min têm 400% mais conversão. Com respostas automáticas instantâneas + triagem humana depois, você mantém qualidade E velocidade.',
+        };
+      }
+      if (value === '2-5h') {
+        return {
+          icon: AlertTriangle,
+          title: 'ATENÇÃO: OPORTUNIDADE PERDIDA',
+          body: 'Cada hora de atraso reduz drasticamente a chance de conversão. 2-5h é tempo suficiente pro lead esquecer de você OU procurar concorrência. Respostas automáticas podem resolver isso hoje mesmo.',
+        };
+      }
+      return {
+        icon: AlertTriangle,
+        title: 'VAZAMENTO CRÍTICO DETECTADO',
+        body: 'Mais de 1 dia? Seus leads já esfriaram completamente. A taxa de conversão em +24h é 10x menor. Você está perdendo dinheiro por algo que automação resolve em 1 semana.',
+      };
     },
   },
   {
@@ -67,10 +105,26 @@ const questions: Question[] = [
       { value: 'inconsistent', label: '⚠️ Sim, mas é inconsistente' },
       { value: 'no', label: '❌ Não, respondo só quando o lead volta' },
     ],
-    insight: {
-      icon: DollarSign,
-      title: 'VAZAMENTO CRÍTICO',
-      body: "65% dos leads que 'pensam melhor' NUNCA voltam espontaneamente. Sem follow-up estruturado, você está jogando dinheiro no lixo.",
+    insight: (value: string) => {
+      if (value === 'yes') {
+        return {
+          icon: Award,
+          title: 'ÓTIMO! VOCÊ ESTÁ À FRENTE',
+          body: 'Ter follow-up estruturado coloca você no top 20% das clínicas. O próximo passo? Automatizar esse processo pra garantir que NUNCA falhe, mesmo quando você está ocupado. Consistência = dinheiro.',
+        };
+      }
+      if (value === 'inconsistent') {
+        return {
+          icon: Lightbulb,
+          title: 'QUASE LÁ!',
+          body: 'Follow-up existe, mas inconsistência mata resultado. Um lead esquecido = R$ perdido. Automação garante que TODO lead receba follow-up na hora certa, sem depender de memória ou tempo da equipe.',
+        };
+      }
+      return {
+        icon: DollarSign,
+        title: 'VAZAMENTO CRÍTICO IDENTIFICADO',
+        body: "65% dos leads que 'pensam melhor' NUNCA voltam sozinhos. Sem follow-up estruturado, você joga dinheiro no lixo todo dia. Boa notícia? Isso é o mais fácil de resolver com automação.",
+      };
     },
   },
   {
@@ -80,11 +134,26 @@ const questions: Question[] = [
     type: 'slider',
     min: 0,
     max: 8,
-    insight: {
-      icon: Clock,
-      title: 'CUSTO OCULTO DETECTADO',
-      body: (hours: number) =>
-        `${hours} horas/dia = ${hours * 30} horas/mês\n\nCom automação: Reduz para 30h/mês\nEconomia: R$ ${((hours * 30 - 30) * 80).toLocaleString('pt-BR')}/mês`,
+    insight: (hours: number) => {
+      if (hours <= 2) {
+        return {
+          icon: Award,
+          title: 'PARABÉNS! OPERAÇÃO ENXUTA',
+          body: `Apenas ${hours}h/dia em atendimento manual é excelente! Sua operação já é eficiente. Com automação estratégica, dá pra manter esse tempo baixo mesmo dobrando o volume de leads.`,
+        };
+      }
+      if (hours <= 4) {
+        return {
+          icon: Clock,
+          title: 'TEMPO RAZOÁVEL, MAS ESCALÁVEL?',
+          body: `${hours}h/dia = ${hours * 30}h/mês em tarefas repetitivas. Não é crítico agora, mas se você crescer 2x, vira ${hours * 2}h/dia. Automação permite crescer sem aumentar proporcionalmente a equipe.`,
+        };
+      }
+      return {
+        icon: Clock,
+        title: 'MUITO TEMPO EM TAREFAS MANUAIS',
+        body: `${hours}h/dia = ${hours * 30}h/mês desperdiçados em tarefas repetitivas!\n\nCom automação: Reduz para 30-50h/mês\nEconomia: R$ ${((hours * 30 - 40) * 80).toLocaleString('pt-BR')}/mês\n\nSua equipe poderia focar em VENDER, não em responder "qual o valor?"`,
+      };
     },
   },
   {
@@ -94,16 +163,26 @@ const questions: Question[] = [
     type: 'slider',
     min: 0,
     max: 10,
-    insight: {
-      icon: TrendingUp,
-      title: 'COMPARATIVO DE MERCADO',
-      body: (value: number) => {
-        const percentage = (value / 10) * 100;
-        if (percentage >= 70) return 'Você está no TOP! Foco agora é aumentar volume de leads.';
-        if (percentage >= 45)
-          return 'Você está ACIMA da média, mas tem potencial de crescer 20% apenas otimizando o atendimento.';
-        return 'Há muito espaço para melhoria. Com processo estruturado, é possível dobrar sua conversão.';
-      },
+    insight: (value: number) => {
+      if (value >= 7) {
+        return {
+          icon: Award,
+          title: 'CONVERSÃO EXCELENTE!',
+          body: `${value}/10 (${(value * 10).toFixed(0)}%) é conversão de elite! Você está no top 10% do mercado. Foco agora é aumentar VOLUME de leads qualificados mantendo essa taxa. Parabéns!`,
+        };
+      }
+      if (value >= 4) {
+        return {
+          icon: TrendingUp,
+          title: 'CONVERSÃO MÉDIA DO MERCADO',
+          body: `${value}/10 (${(value * 10).toFixed(0)}%) está na média. Com processo estruturado de vendas + scripts otimizados, clínicas sobem pra 7/10 facilmente. Isso representa +${((7 - value) / value * 100).toFixed(0)}% de receita com os MESMOS leads.`,
+        };
+      }
+      return {
+        icon: AlertTriangle,
+        title: 'CONVERSÃO BAIXA = OPORTUNIDADE GRANDE',
+        body: `${value}/10 (${(value * 10).toFixed(0)}%) indica processo de vendas fraco. A boa notícia? Dobrar pra ${value * 2}/10 é totalmente viável com: scripts de objeções, follow-up estruturado e proposta de valor clara. Foco aqui = ROI altíssimo.`,
+      };
     },
   },
   {
@@ -117,10 +196,33 @@ const questions: Question[] = [
       { value: '60%+', label: 'Mais de 60%', emoji: '😊' },
       { value: 'unknown', label: 'Não sei / Não controlo isso' },
     ],
-    insight: {
-      icon: Award,
-      title: 'VAZAMENTO GIGANTE',
-      body: 'O MAIOR lucro vem do LIFETIME VALUE. Paciente que retorna 3x = 4x mais lucrativo. Clínicas top têm 60%+ de retorno.',
+    insight: (value: string) => {
+      if (value === '60%+') {
+        return {
+          icon: Award,
+          title: 'PARABÉNS! FIDELIZAÇÃO DE ELITE',
+          body: 'Taxa de 60%+ é EXCELENTE! Você está no top 10% das clínicas. Seu desafio agora é manter essa taxa enquanto escala o volume de pacientes. Lembretes automáticos ajudam nisso.',
+        };
+      }
+      if (value === '30-50%') {
+        return {
+          icon: TrendingUp,
+          title: 'POTENCIAL ENORME IDENTIFICADO',
+          body: 'Sua taxa de 30-50% está na MÉDIA do mercado. Com lembretes automáticos baseados no procedimento e follow-up estruturado, dá pra subir pra 60%+ (aumentando receita em ~30% SEM novos leads).',
+        };
+      }
+      if (value === '<30%') {
+        return {
+          icon: DollarSign,
+          title: 'OPORTUNIDADE CRÍTICA: LIFETIME VALUE',
+          body: 'Menos de 30% de retorno significa que você perde o MAIOR lucro: o lifetime value. Paciente que retorna 3x = 4x mais lucrativo. Sistema de lembretes pode DOBRAR essa taxa. É ouro na mesa.',
+        };
+      }
+      return {
+        icon: AlertTriangle,
+        title: 'DADOS AUSENTES = DINHEIRO PERDIDO',
+        body: 'Não controlar retorno de pacientes é deixar dinheiro na mesa. Clínicas top têm 60%+ de retorno porque SABEM quando cada paciente deve voltar e enviam lembretes. Sem dados, sem estratégia.',
+      };
     },
   },
   {
@@ -133,10 +235,33 @@ const questions: Question[] = [
       { value: 'basic_crm', label: '💼 Sistema/CRM básico' },
       { value: 'complete_crm', label: '🏆 CRM completo integrado' },
     ],
-    insight: {
-      icon: Lightbulb,
-      title: 'ORGANIZAÇÃO = DINHEIRO',
-      body: 'Clínicas com CRM completo têm 3x mais retorno de pacientes e perdem 80% menos leads.',
+    insight: (value: string) => {
+      if (value === 'complete_crm') {
+        return {
+          icon: Award,
+          title: 'ESTRUTURA SÓLIDA!',
+          body: 'CRM completo integrado é infraestrutura de clínica profissional. Agora é maximizar o uso: dashboards, automações, inteligência de dados. Você já tem a base, falta extrair 100% do potencial.',
+        };
+      }
+      if (value === 'basic_crm') {
+        return {
+          icon: Lightbulb,
+          title: 'TEM SISTEMA, MAS É SUFICIENTE?',
+          body: 'CRM básico é melhor que planilha, mas deixa dinheiro na mesa. Sem integração (WhatsApp, Instagram, automações), você perde agilidade e dados valiosos. Upgrade pro completo = 3x mais retorno de pacientes.',
+        };
+      }
+      if (value === 'spreadsheet') {
+        return {
+          icon: Clock,
+          title: 'PLANILHA É MELHOR QUE NADA, MAS...',
+          body: 'Planilha funciona pra 50-100 leads/mês. Depois disso, vira gargalo. Você perde tempo, esquece follow-ups, não tem visão real do negócio. CRM automatizado economiza 10h/semana + aumenta conversão em 40%.',
+        };
+      }
+      return {
+        icon: AlertTriangle,
+        title: 'DADOS NA CABEÇA = GARGALO FATAL',
+        body: 'Impossível escalar sem sistema. Você não sabe: qual procedimento mais rentável, melhor fonte de leads, taxa real de conversão, quando pacientes devem retornar. Dados organizados = decisões inteligentes = mais lucro.',
+      };
     },
   },
   {
@@ -150,10 +275,12 @@ const questions: Question[] = [
       { value: 'more_return', label: 'Aumentar retorno de pacientes' },
       { value: 'predictability', label: 'Ter previsibilidade' },
     ],
-    insight: {
-      icon: TrendingUp,
-      title: 'ENTENDIDO',
-      body: 'Vou calibrar os resultados de acordo com seus objetivos.',
+    insight: (value: any) => {
+      return {
+        icon: TrendingUp,
+        title: 'PERFEITO! ENTENDI SEU OBJETIVO',
+        body: 'Vou calibrar o diagnóstico RADIX™ de acordo com suas prioridades. Em instantes você verá exatamente onde focar primeiro pra atingir esses objetivos.',
+      };
     },
   },
 ];
@@ -267,17 +394,18 @@ export function MultiStepForm({ onComplete, initialAnswers }: Props) {
                   <p className="text-lg">Analisando...</p>
                 </div>
               ) : (
-                <div>
-                  <div className="flex items-center gap-3 mb-4">
-                    <question.insight.icon className="w-8 h-8 text-primary" />
-                    <h4 className="text-2xl font-bold">{question.insight.title}</h4>
-                  </div>
-                  <p className="text-lg whitespace-pre-line">
-                    {typeof question.insight.body === 'function'
-                      ? question.insight.body(answers[question.id])
-                      : question.insight.body}
-                  </p>
-                </div>
+                (() => {
+                  const insight = question.insight(answers[question.id]);
+                  return (
+                    <div>
+                      <div className="flex items-center gap-3 mb-4">
+                        <insight.icon className="w-8 h-8 text-primary" />
+                        <h4 className="text-2xl font-bold">{insight.title}</h4>
+                      </div>
+                      <p className="text-lg whitespace-pre-line">{insight.body}</p>
+                    </div>
+                  );
+                })()
               )}
             </motion.div>
           )}

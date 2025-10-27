@@ -4,7 +4,7 @@ import CountUp from 'react-countup';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { calculateQuickLeakage, formatCurrency } from '@/lib/calculations';
-import { AlertTriangle, Lock } from 'lucide-react';
+import { AlertTriangle, Lock, Instagram, Linkedin, X } from 'lucide-react';
 
 interface Props {
   onCalculate: (leads: number, ticket: number) => void;
@@ -16,6 +16,7 @@ export function QuickCalculator({ onCalculate, onContinue }: Props) {
   const [ticket, setTicket] = useState(2500);
   const [showResult, setShowResult] = useState(false);
   const [leakage, setLeakage] = useState(0);
+  const [showModal, setShowModal] = useState(false);
 
   const handleCalculate = () => {
     const result = calculateQuickLeakage({ leads, ticket });
@@ -152,7 +153,12 @@ export function QuickCalculator({ onCalculate, onContinue }: Props) {
                   <Button onClick={onContinue} size="lg" className="w-full text-sm sm:text-base md:text-lg h-12 sm:h-14">
                     SIM, QUERO O MÉTODO RADIX COMPLETO
                   </Button>
-                  <Button variant="outline" size="lg" className="w-full text-sm sm:text-base">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-full text-sm sm:text-base"
+                    onClick={() => setShowModal(true)}
+                  >
                     Não, prefiro deixar dinheiro na mesa
                   </Button>
                 </div>
@@ -161,6 +167,103 @@ export function QuickCalculator({ onCalculate, onContinue }: Props) {
           </AnimatePresence>
         </motion.div>
       </div>
+
+      {/* Modal */}
+      <AnimatePresence>
+        {showModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={() => setShowModal(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-card rounded-lg p-6 sm:p-8 max-w-md w-full text-center shadow-2xl relative"
+            >
+              <button
+                onClick={() => setShowModal(false)}
+                className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition"
+              >
+                <X size={20} />
+              </button>
+
+              <div className="text-6xl mb-4">🙂</div>
+
+              <h3 className="text-2xl font-bold text-foreground mb-4">Tudo Bem, Entendo</h3>
+
+              <p className="text-muted-foreground mb-4 leading-relaxed text-sm sm:text-base">
+                Às vezes não é o momento certo para grandes mudanças.
+              </p>
+
+              <p className="text-muted-foreground mb-6 leading-relaxed text-sm sm:text-base">
+                Mas deixa eu te falar uma coisa: esse lucro oculto que calculamos não vai embora. Ele vai
+                continuar lá, todos os meses, esperando você decidir capturá-lo.
+              </p>
+
+              <div className="bg-muted/30 p-4 rounded-lg mb-6">
+                <p className="text-sm text-foreground mb-3">
+                  <strong>Enquanto isso, que tal algumas dicas gratuitas?</strong>
+                </p>
+                <ul className="text-left text-xs sm:text-sm text-muted-foreground space-y-2">
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-0.5">✓</span>
+                    <span>Como atender mais leads em menos tempo</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-0.5">✓</span>
+                    <span>Automações simples para clínicas</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-0.5">✓</span>
+                    <span>Estratégias de fidelização de pacientes</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
+                <a
+                  href="https://instagram.com/eucalyptus.solutions"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground rounded-lg hover:shadow-lg transition"
+                >
+                  <Instagram size={20} />
+                  <span className="text-sm">Instagram</span>
+                </a>
+
+                <a
+                  href="https://linkedin.com/company/eucalyptus-solutions"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-primary text-primary rounded-lg hover:bg-muted transition"
+                >
+                  <Linkedin size={20} />
+                  <span className="text-sm">LinkedIn</span>
+                </a>
+              </div>
+
+              <button
+                onClick={() => setShowModal(false)}
+                className="text-sm text-primary hover:underline mb-2"
+              >
+                Mudei de ideia
+              </button>
+
+              <button
+                onClick={() => setShowModal(false)}
+                className="text-xs text-muted-foreground hover:text-foreground"
+              >
+                Fechar
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
