@@ -21,16 +21,16 @@ interface Props {
 
 export function ResultsDashboard({ results }: Props) {
   const chartData = {
-    labels: ['Organização', 'Automação', 'Conversão', 'Retenção', 'Previsibilidade'],
+    labels: ['R - Recepção', 'A - Automação', 'D - Dados', 'I - Inteligência', 'X - eXpansão'],
     datasets: [
       {
-        label: 'Sua Pontuação',
+        label: 'Score RADIX',
         data: [
-          results.scores.organization,
-          results.scores.automation,
-          results.scores.conversion,
-          results.scores.retention,
-          results.scores.predictability,
+          results.scores.recepcao,
+          results.scores.automacao,
+          results.scores.dados,
+          results.scores.inteligencia,
+          results.scores.expansao,
         ],
         backgroundColor: 'rgba(184, 115, 83, 0.3)',
         borderColor: 'rgba(184, 115, 83, 1)',
@@ -70,64 +70,68 @@ export function ResultsDashboard({ results }: Props) {
         animate={{ opacity: 1, y: 0 }}
         className="max-w-4xl mx-auto"
       >
-        <h2 className="text-4xl font-bold text-center mb-12">Seu Diagnóstico Completo</h2>
+        <h2 className="text-4xl font-bold text-center mb-12">Diagnóstico Método RADIX™</h2>
 
         {/* Radar Chart */}
         <div className="bg-card rounded-2xl p-8 shadow-lg border border-border mb-8">
-          <h3 className="text-2xl font-bold mb-6 text-center">Scorecard de Performance</h3>
+          <h3 className="text-2xl font-bold mb-6 text-center">Score RADIX</h3>
           <div className="max-w-md mx-auto">
             <Radar data={chartData} options={chartOptions} />
           </div>
+          <div className="text-center mt-6">
+            <p className="text-sm text-muted-foreground mb-2">Score RADIX Geral</p>
+            <p className="text-3xl font-bold text-primary">
+              {((results.scores.recepcao + results.scores.automacao + results.scores.dados + results.scores.inteligencia + results.scores.expansao) / 5).toFixed(1)}/10
+            </p>
+          </div>
         </div>
 
-        {/* Leakage Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          {results.leakages.map((leakage, index) => {
-            const Icon = leakageIcons[leakage.type];
-            return (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className={`bg-card rounded-xl p-6 border-2 ${
-                  leakage.type === 'critical'
-                    ? 'border-destructive'
-                    : leakage.type === 'high'
-                      ? 'border-primary'
-                      : 'border-muted'
-                }`}
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <Icon
-                    className={`w-6 h-6 ${
-                      leakage.type === 'critical'
-                        ? 'text-destructive'
-                        : leakage.type === 'high'
-                          ? 'text-primary'
-                          : 'text-muted-foreground'
-                    }`}
-                  />
-                  <span
-                    className={`text-xs px-2 py-1 rounded-full ${
-                      leakage.type === 'critical'
-                        ? 'bg-destructive/10 text-destructive'
-                        : leakage.type === 'high'
+        {/* Opportunity Layers */}
+        <div className="mb-8">
+          <h3 className="text-2xl font-bold mb-6">💰 Camadas de Lucro Oculto</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {results.leakages.map((leakage, index) => {
+              const priorityLabel = leakage.type === 'critical' || leakage.type === 'high' 
+                ? 'Prioridade Alta' 
+                : 'Prioridade Média';
+              const emoji = leakage.type === 'critical' ? '🔴' : leakage.type === 'high' ? '🟠' : '🟡';
+              
+              return (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className={`bg-card rounded-xl p-6 border-2 ${
+                    leakage.type === 'critical'
+                      ? 'border-destructive'
+                      : leakage.type === 'high'
+                        ? 'border-primary'
+                        : 'border-muted'
+                  }`}
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <span className="text-2xl">{emoji}</span>
+                    <span
+                      className={`text-xs px-2 py-1 rounded-full ${
+                        leakage.type === 'critical' || leakage.type === 'high'
                           ? 'bg-primary/10 text-primary'
                           : 'bg-muted/10 text-muted-foreground'
-                    }`}
-                  >
-                    {leakage.type.toUpperCase()}
-                  </span>
-                </div>
-                <h4 className="font-semibold mb-2">{leakage.label}</h4>
-                <p className="text-3xl font-bold text-primary">
-                  <CountUp end={leakage.value} duration={2} prefix="R$ " separator="." decimals={0} />
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">por mês</p>
-              </motion.div>
-            );
-          })}
+                      }`}
+                    >
+                      {priorityLabel}
+                    </span>
+                  </div>
+                  <h4 className="font-semibold mb-2">Camada {index + 1}</h4>
+                  <p className="text-sm mb-3 text-muted-foreground">{leakage.label}</p>
+                  <p className="text-3xl font-bold text-primary">
+                    <CountUp end={leakage.value} duration={2} prefix="R$ " separator="." decimals={0} />
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">por mês em oportunidade</p>
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
 
         {/* Total Impact */}
@@ -137,33 +141,40 @@ export function ResultsDashboard({ results }: Props) {
           transition={{ delay: 0.4 }}
           className="bg-gradient-to-br from-primary to-primary/80 rounded-2xl p-8 shadow-xl text-white"
         >
-          <div className="flex items-center gap-3 mb-4">
-            <Users className="w-8 h-8" />
-            <h3 className="text-2xl font-bold">Impacto Total</h3>
+          <div className="text-center mb-6">
+            <div className="text-4xl mb-4">💎</div>
+            <h3 className="text-3xl font-bold mb-2">Diagnóstico Método RADIX™ Completo</h3>
+            <p className="text-sm opacity-90">
+              Identificamos {results.leakages.length} camadas de lucro oculto na sua operação
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div>
-              <p className="text-sm opacity-90 mb-1">Vazamento Mensal Total</p>
-              <p className="text-4xl font-bold">
-                R$ <CountUp end={results.total} duration={2.5} separator="." decimals={0} />
-              </p>
-            </div>
-            <div>
-              <p className="text-sm opacity-90 mb-1">Impacto Anual</p>
-              <p className="text-4xl font-bold">
-                R$ <CountUp end={results.total * 12} duration={2.5} separator="." decimals={0} />
-              </p>
-            </div>
+          <div className="border-2 border-white/20 rounded-xl p-6 mb-6 text-center">
+            <p className="text-sm opacity-90 mb-2">LUCRO OCULTO TOTAL</p>
+            <p className="text-5xl font-bold mb-4">
+              R$ <CountUp end={results.total} duration={2.5} separator="." decimals={0} />
+            </p>
+            <p className="text-sm opacity-90 mb-1">por mês</p>
+            <div className="border-t border-white/20 my-4"></div>
+            <p className="text-sm opacity-90 mb-1">Potencial Anual</p>
+            <p className="text-3xl font-bold">
+              R$ <CountUp end={results.total * 12} duration={2.5} separator="." decimals={0} />
+            </p>
+          </div>
+
+          <div className="bg-white/10 rounded-xl p-4 mb-4">
+            <p className="text-sm mb-2">
+              Esse valor está "adormecido" na sua operação.
+            </p>
+            <p className="text-sm font-semibold">
+              Com o Ecossistema Eucalyptus, clientes recuperam 60-80% desse potencial em 90 dias.
+            </p>
           </div>
 
           <div className="bg-white/10 rounded-xl p-4">
-            <p className="text-sm opacity-90 mb-1">Payback Estimado com Automação</p>
-            <p className="text-2xl font-bold">
-              <CountUp end={results.paybackDays} duration={2} /> dias
-            </p>
-            <p className="text-xs opacity-75 mt-2">
-              Baseado em investimento médio de R$ 25.000 em sistema de gestão
+            <p className="text-sm opacity-90 mb-1">🎯 Seu maior gargalo está em</p>
+            <p className="text-xl font-bold">
+              {Object.entries(results.scores).reduce((a, b) => a[1] < b[1] ? a : b)[0].charAt(0).toUpperCase() + Object.entries(results.scores).reduce((a, b) => a[1] < b[1] ? a : b)[0].slice(1)}
             </p>
           </div>
         </motion.div>

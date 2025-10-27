@@ -27,11 +27,11 @@ export interface CalculationResults {
   total: number;
   paybackDays: number;
   scores: {
-    organization: number;
-    automation: number;
-    conversion: number;
-    retention: number;
-    predictability: number;
+    recepcao: number;
+    automacao: number;
+    dados: number;
+    inteligencia: number;
+    expansao: number;
   };
 }
 
@@ -66,10 +66,10 @@ export function calculateLeakages(answers: Answers): CalculationResults {
 
   return {
     leakages: [
-      { type: 'critical', label: 'Leads esquecidos', value: leakage1 },
-      { type: 'high', label: 'Follow-up perdido', value: leakage2 },
-      { type: 'medium', label: 'Tempo desperdiçado', value: leakage3 },
-      { type: 'medium', label: 'Retorno baixo', value: leakage4 },
+      { type: 'critical', label: 'Recepção não otimizada', value: leakage1 },
+      { type: 'high', label: 'Inteligência de conversão', value: leakage2 },
+      { type: 'medium', label: 'Automação inexistente', value: leakage3 },
+      { type: 'medium', label: 'Expansão limitada', value: leakage4 },
     ],
     total,
     paybackDays: Math.round((25000 / total) * 30),
@@ -80,38 +80,47 @@ export function calculateLeakages(answers: Answers): CalculationResults {
 function calculateScores(answers: Answers) {
   const { attendRate, responseTime, hasFollowUp, manualHours, conversionRate, returnRate, dataManagement } = answers;
 
-  // Organization (0-10)
-  let organization = 5;
-  if (dataManagement === 'complete_crm') organization = 9;
-  else if (dataManagement === 'basic_crm') organization = 7;
-  else if (dataManagement === 'spreadsheet') organization = 5;
-  else organization = 2;
+  // R - Recepção (baseado em atendimento + tempo resposta)
+  let recepcao = (attendRate / 10) * 5;
+  if (responseTime === '<5min') recepcao += 5;
+  else if (responseTime === '30min-2h') recepcao += 3;
+  else if (responseTime === '2-5h') recepcao += 2;
+  else recepcao += 1;
+  recepcao = Math.min(recepcao, 10);
 
-  // Automation (0-10)
-  let automation = 10 - Math.min(manualHours, 8);
-  if (responseTime === '<5min') automation += 2;
-  if (hasFollowUp === 'yes') automation += 2;
-  automation = Math.min(automation, 10);
+  // A - Automação (baseado em follow-up + horas manuais)
+  let automacao = 10 - Math.min(manualHours, 8);
+  if (hasFollowUp === 'yes') automacao += 2;
+  else if (hasFollowUp === 'inconsistent') automacao += 1;
+  automacao = Math.min(automacao, 10);
 
-  // Conversion (0-10)
-  const conversion = Math.min((attendRate / 10) * 5 + (conversionRate / 10) * 5, 10);
+  // D - Dados (baseado em organização)
+  let dados = 5;
+  if (dataManagement === 'complete_crm') dados = 9;
+  else if (dataManagement === 'basic_crm') dados = 7;
+  else if (dataManagement === 'spreadsheet') dados = 5;
+  else dados = 2;
 
-  // Retention (0-10)
-  let retention = 5;
-  if (returnRate === '60%+') retention = 9;
-  else if (returnRate === '30-50%') retention = 6;
-  else if (returnRate === '<30%') retention = 3;
-  else retention = 2;
+  // I - Inteligência (baseado em conversão + follow-up)
+  let inteligencia = (conversionRate / 10) * 7;
+  if (hasFollowUp === 'yes') inteligencia += 3;
+  else if (hasFollowUp === 'inconsistent') inteligencia += 1;
+  inteligencia = Math.min(inteligencia, 10);
 
-  // Predictability (0-10)
-  const predictability = (organization + automation) / 2;
+  // X - eXpansão (baseado em retorno + conversão)
+  let expansao = (conversionRate / 10) * 5;
+  if (returnRate === '60%+') expansao += 5;
+  else if (returnRate === '30-50%') expansao += 3;
+  else if (returnRate === '<30%') expansao += 1;
+  else expansao += 0;
+  expansao = Math.min(expansao, 10);
 
   return {
-    organization: Math.round(organization),
-    automation: Math.round(automation),
-    conversion: Math.round(conversion),
-    retention: Math.round(retention),
-    predictability: Math.round(predictability),
+    recepcao: Math.round(recepcao),
+    automacao: Math.round(automacao),
+    dados: Math.round(dados),
+    inteligencia: Math.round(inteligencia),
+    expansao: Math.round(expansao),
   };
 }
 

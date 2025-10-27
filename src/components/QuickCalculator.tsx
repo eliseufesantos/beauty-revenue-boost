@@ -33,15 +33,15 @@ export function QuickCalculator({ onCalculate, onContinue }: Props) {
           transition={{ duration: 0.6 }}
         >
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground text-center mb-4 leading-tight px-2">
-            Quanto Dinheiro Sua Clínica
+            Quanto Lucro Oculto Sua Clínica
             <br />
-            Perde Por Mês com Desorganização?
+            Deixa na Mesa Todo Mês?
           </h1>
 
           <p className="text-base sm:text-lg text-muted-foreground text-center mb-12 px-2">
-            Descubra em 60 segundos os vazamentos invisíveis
+            Diagnóstico RADIX: descubra em 60 segundos
             <br className="hidden sm:block" />
-            que estão corroendo sua margem.
+            as oportunidades invisíveis na sua operação.
           </p>
 
           <AnimatePresence mode="wait">
@@ -86,7 +86,7 @@ export function QuickCalculator({ onCalculate, onContinue }: Props) {
                   </div>
 
                   <Button onClick={handleCalculate} size="lg" className="w-full text-base sm:text-lg h-12 sm:h-14">
-                    CALCULAR MEUS VAZAMENTOS
+                    DESCOBRIR MEU LUCRO OCULTO
                   </Button>
 
                   <p className="text-xs text-muted-foreground text-center flex items-center justify-center gap-2">
@@ -104,63 +104,56 @@ export function QuickCalculator({ onCalculate, onContinue }: Props) {
                 className="bg-card rounded-2xl p-4 sm:p-6 md:p-8 shadow-xl border-2 border-primary"
               >
                 <div className="flex items-center gap-3 mb-6">
-                  <AlertTriangle className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
-                  <h2 className="text-lg sm:text-xl md:text-2xl font-bold">ALERTA DE VAZAMENTO DETECTADO</h2>
+                  <div className="text-3xl">💎</div>
+                  <h2 className="text-lg sm:text-xl md:text-2xl font-bold">LUCRO OCULTO DETECTADO</h2>
                 </div>
 
-                <p className="text-base sm:text-lg mb-4">Sua clínica pode estar perdendo:</p>
+                <p className="text-base sm:text-lg mb-4">Sua clínica tem aproximadamente:</p>
 
                 <div className="bg-primary/10 rounded-xl p-4 sm:p-6 mb-6 text-center">
                   <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-primary">
                     R$ <CountUp end={leakage} duration={2} separator="." />
                   </p>
-                  <p className="text-sm mt-2 text-muted-foreground">por mês</p>
+                  <p className="text-sm mt-2 text-muted-foreground">por mês em receita potencial não capturada</p>
                 </div>
 
-                <p className="text-sm mb-4">Só em leads mal atendidos ou esquecidos.</p>
-
                 <div className="border-t border-b border-border py-4 my-6">
-                  <p className="font-semibold mb-3">Esse é um cálculo CONSERVADOR.</p>
+                  <p className="font-semibold mb-3">Esse cálculo considera apenas leads mal atendidos.</p>
                   <p className="text-sm mb-3">
-                    Baseado em dados de 47 clínicas que analisamos em SP, 30% dos leads são perdidos por:
+                    O Diagnóstico RADIX completo identifica 4 outras camadas de oportunidade:
                   </p>
-                  <ul className="text-sm space-y-1 ml-4 list-disc">
-                    <li>Demora na resposta (+2h)</li>
-                    <li>Falta de follow-up estruturado</li>
-                    <li>Esquecimento manual</li>
+                  <ul className="text-sm space-y-2">
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary">→</span>
+                      <span>Follow-up não otimizado</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary">→</span>
+                      <span>Pacientes que não retornam</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary">→</span>
+                      <span>Processos manuais ineficientes</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary">→</span>
+                      <span>Dados desorganizados</span>
+                    </li>
                   </ul>
                 </div>
 
-                <p className="font-semibold mb-3">
-                  Mas existem mais 3 vazamentos escondidos que ainda NÃO contamos nesse cálculo:
-                </p>
-                <ul className="text-sm space-y-2 mb-6">
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary">✗</span>
-                    <span>Follow-up mal executado (mais R$ 15-25k/mês)</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary">✗</span>
-                    <span>Pacientes que não retornam (mais R$ 8-15k/mês)</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary">✗</span>
-                    <span>Tempo da equipe desperdiçado (mais R$ 6-12k/mês)</span>
-                  </li>
-                </ul>
-
                 <p className="text-center mb-6 font-medium text-sm sm:text-base">
-                  Quer ver o número REAL da sua clínica?
+                  Quer o diagnóstico completo?
                   <br />
                   <span className="text-sm text-muted-foreground">(Leva apenas 2 minutos)</span>
                 </p>
 
                 <div className="space-y-3">
                   <Button onClick={onContinue} size="lg" className="w-full text-sm sm:text-base md:text-lg h-12 sm:h-14">
-                    SIM, QUERO O DIAGNÓSTICO COMPLETO
+                    SIM, QUERO O MÉTODO RADIX COMPLETO
                   </Button>
                   <Button variant="outline" size="lg" className="w-full text-sm sm:text-base">
-                    Não, vou continuar perdendo dinheiro
+                    Não, prefiro deixar dinheiro na mesa
                   </Button>
                 </div>
               </motion.div>
