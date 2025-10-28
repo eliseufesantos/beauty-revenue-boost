@@ -6,12 +6,15 @@ interface Props {
   onComplete: () => void;
 }
 
+const LOADER_DURATION = 6000; // 6 segundos fixos
+const MESSAGE_INTERVAL = 1200; // 1.2s cada mensagem
+
 const messages = [
   '🧠 Analisando seus dados...',
   '💡 Processando 8 variáveis...',
   '📊 Comparando com 47 clínicas...',
-  '💰 Calculando vazamentos ocultos...',
-  '🎯 Gerando scorecard personalizado...',
+  '💰 Calculando lucro oculto...',
+  '✨ Gerando diagnóstico RADIX...',
 ];
 
 export function AnalyzingLoader({ onComplete }: Props) {
@@ -19,27 +22,41 @@ export function AnalyzingLoader({ onComplete }: Props) {
   const [messageIndex, setMessageIndex] = useState(0);
 
   useEffect(() => {
-    console.log('Loader started');
-    
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          console.log('Loader finished');
-          setTimeout(onComplete, 500);
-          return 100;
-        }
-        return prev + 2;
-      });
-    }, 100);
+    const startTime = Date.now();
+    console.log('Loader START:', startTime);
 
-    return () => clearInterval(interval);
+    // Progress bar: incrementa linearmente de 0 a 100 em 6 segundos
+    // Atualiza a cada 60ms para suavidade (100 updates em 6s)
+    const progressInterval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const newProgress = Math.min((elapsed / LOADER_DURATION) * 100, 100);
+      setProgress(newProgress);
+
+      if (newProgress >= 100) {
+        clearInterval(progressInterval);
+      }
+    }, 60);
+
+    // Após exatos 6 segundos, completa o loader
+    const completeTimer = setTimeout(() => {
+      const endTime = Date.now();
+      console.log('Loader END:', endTime);
+      console.log('Duration:', endTime - startTime, 'ms');
+      setProgress(100);
+      setTimeout(onComplete, 500);
+    }, LOADER_DURATION);
+
+    return () => {
+      clearInterval(progressInterval);
+      clearTimeout(completeTimer);
+    };
   }, [onComplete]);
 
   useEffect(() => {
+    // Mensagens trocam a cada 1.2s
     const messageInterval = setInterval(() => {
       setMessageIndex((prev) => (prev + 1) % messages.length);
-    }, 1000);
+    }, MESSAGE_INTERVAL);
 
     return () => clearInterval(messageInterval);
   }, []);

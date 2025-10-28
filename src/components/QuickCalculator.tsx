@@ -16,6 +16,7 @@ export function QuickCalculator({ onCalculate, onContinue }: Props) {
   const [ticket, setTicket] = useState(2500);
   const [showResult, setShowResult] = useState(false);
   const [leakage, setLeakage] = useState(0);
+  const [showDeclineModal, setShowDeclineModal] = useState(false);
 
   const handleCalculate = () => {
     const result = calculateQuickLeakage({ leads, ticket });
@@ -152,7 +153,12 @@ export function QuickCalculator({ onCalculate, onContinue }: Props) {
                   <Button onClick={onContinue} size="lg" className="w-full text-sm sm:text-base md:text-lg h-12 sm:h-14">
                     SIM, QUERO O MÉTODO RADIX COMPLETO
                   </Button>
-                  <Button variant="outline" size="lg" className="w-full text-sm sm:text-base">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-full text-sm sm:text-base"
+                    onClick={() => setShowDeclineModal(true)}
+                  >
                     Não, prefiro deixar dinheiro na mesa
                   </Button>
                 </div>
@@ -160,6 +166,93 @@ export function QuickCalculator({ onCalculate, onContinue }: Props) {
             )}
           </AnimatePresence>
         </motion.div>
+
+        {/* Modal de Recusa */}
+        <AnimatePresence>
+          {showDeclineModal && (
+            <>
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/60 z-50"
+                onClick={() => setShowDeclineModal(false)}
+              />
+
+              {/* Modal Content */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="fixed inset-4 sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:max-w-md sm:w-full z-50"
+              >
+                <div className="bg-card rounded-2xl p-6 sm:p-8 shadow-2xl border border-border max-h-[90vh] overflow-y-auto">
+                  <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-center">
+                    Tudo Bem, Entendo 🙂
+                  </h2>
+
+                  <div className="space-y-4 text-base sm:text-lg mb-6">
+                    <p>
+                      Às vezes não é o momento certo para grandes mudanças.
+                    </p>
+                    <p>
+                      Mas deixa eu te falar uma coisa: esse lucro oculto que calculamos não vai embora.
+                      Ele vai continuar lá, todos os meses, esperando você decidir capturá-lo.
+                    </p>
+                    <p>
+                      Quando estiver pronto, é só voltar aqui.
+                    </p>
+                    <p className="font-semibold">
+                      Enquanto isso, que tal algumas dicas gratuitas?
+                    </p>
+                  </div>
+
+                  {/* Botões de Redes Sociais */}
+                  <div className="flex flex-wrap gap-3 justify-center mb-6">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-2"
+                      onClick={() => window.open('https://instagram.com', '_blank')}
+                    >
+                      📱 Instagram
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-2"
+                      onClick={() => window.open('https://facebook.com', '_blank')}
+                    >
+                      👥 Facebook
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-2"
+                      onClick={() => window.open('https://linkedin.com', '_blank')}
+                    >
+                      💼 LinkedIn
+                    </Button>
+                  </div>
+
+                  {/* Botão "Mudei de ideia" */}
+                  <div className="text-center pt-4 border-t border-border">
+                    <button
+                      onClick={() => {
+                        setShowDeclineModal(false);
+                        onContinue();
+                      }}
+                      className="text-sm text-muted-foreground hover:text-primary underline transition-colors"
+                    >
+                      Mudei de ideia → Voltar pro diagnóstico
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
       </div>
     </section>
   );
