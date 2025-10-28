@@ -29,7 +29,7 @@ export function TrustBuilder({ onStart }: Props) {
 
           <div className="border-b border-t border-border py-4 mb-6">
             <h2 className="text-xl sm:text-2xl font-bold text-center mb-4">ANTES DE CONTINUAR...</h2>
-            <p className="text-base sm:text-lg font-medium mb-2">Por que você deveria confiar nesse diagnóstico?</p>
+            <p className="text-base sm:text-lg font-medium mb-2 text-center">Por que você deveria confiar nesse diagnóstico?</p>
           </div>
 
           <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl p-6 mb-8 border border-primary/20">
