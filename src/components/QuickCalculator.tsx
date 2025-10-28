@@ -49,7 +49,7 @@ export function QuickCalculator({ onCalculate, onContinue }: Props) {
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">EUCALYPTUS</h2>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground text-center mb-3 leading-snug px-4 max-w-3xl mx-auto">
+          <h1 className="text-3xl sm:text-4xl md:text-[2.75rem] font-bold text-foreground text-center mb-4 leading-tight px-4 max-w-4xl mx-auto">
             Quanto Lucro Oculto Sua Clínica Deixa na Mesa Todo Mês?
           </h1>
 
