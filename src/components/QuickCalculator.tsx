@@ -5,6 +5,17 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { calculateQuickLeakage, formatCurrency } from '@/lib/calculations';
 import { AlertTriangle, Lock } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 interface Props {
   onCalculate: (leads: number, ticket: number) => void;
@@ -152,9 +163,57 @@ export function QuickCalculator({ onCalculate, onContinue }: Props) {
                   <Button onClick={onContinue} size="lg" className="w-full text-sm sm:text-base md:text-lg h-12 sm:h-14">
                     SIM, QUERO O MÉTODO RADIX COMPLETO
                   </Button>
-                  <Button variant="outline" size="lg" className="w-full text-sm sm:text-base">
-                    Não, prefiro deixar dinheiro na mesa
-                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="outline" size="lg" className="w-full text-sm sm:text-base">
+                        Não, prefiro deixar dinheiro na mesa
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="overflow-y-auto max-h-[90vh]">
+                      <div className="my-8">
+                        <AlertDialogHeader>
+                          <AlertDialogTitle className="text-xl sm:text-2xl">Tem certeza?</AlertDialogTitle>
+                          <AlertDialogDescription className="text-base space-y-4 pt-4">
+                            <p>
+                              Você acabou de descobrir que está deixando <span className="font-bold text-primary">{formatCurrency(leakage)}/mês</span> na mesa.
+                            </p>
+                            <p>
+                              E isso é só a ponta do iceberg. O diagnóstico completo vai revelar:
+                            </p>
+                            <ul className="space-y-2 pl-4">
+                              <li className="flex items-start gap-2">
+                                <span className="text-primary">✓</span>
+                                <span>Quanto dinheiro você perde com follow-up mal feito</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-primary">✓</span>
+                                <span>Quantas horas sua equipe desperdiça em tarefas manuais</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-primary">✓</span>
+                                <span>Por que seus pacientes não retornam</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-primary">✓</span>
+                                <span>Qual seu verdadeiro potencial de crescimento</span>
+                              </li>
+                            </ul>
+                            <p className="font-semibold pt-2">
+                              São apenas 2 minutos que podem mudar completamente sua operação.
+                            </p>
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter className="flex-col sm:flex-row gap-2 mt-6">
+                          <AlertDialogAction onClick={onContinue} className="w-full sm:w-auto order-1 sm:order-2">
+                            OK, QUERO O DIAGNÓSTICO COMPLETO
+                          </AlertDialogAction>
+                          <AlertDialogCancel className="w-full sm:w-auto order-2 sm:order-1">
+                            Fechar
+                          </AlertDialogCancel>
+                        </AlertDialogFooter>
+                      </div>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               </motion.div>
             )}
