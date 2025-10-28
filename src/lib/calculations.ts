@@ -77,51 +77,107 @@ export function calculateLeakages(answers: Answers): CalculationResults {
   };
 }
 
-function calculateScores(answers: Answers) {
-  const { attendRate, responseTime, hasFollowUp, manualHours, conversionRate, returnRate, dataManagement } = answers;
-
-  // R - Recepção (baseado em atendimento + tempo resposta)
-  let recepcao = (attendRate / 10) * 5;
-  if (responseTime === '<5min') recepcao += 5;
-  else if (responseTime === '30min-2h') recepcao += 3;
-  else if (responseTime === '2-5h') recepcao += 2;
-  else recepcao += 1;
-  recepcao = Math.min(recepcao, 10);
-
-  // A - Automação (baseado em follow-up + horas manuais)
-  let automacao = 10 - Math.min(manualHours, 8);
-  if (hasFollowUp === 'yes') automacao += 2;
-  else if (hasFollowUp === 'inconsistent') automacao += 1;
-  automacao = Math.min(automacao, 10);
-
-  // D - Dados (baseado em organização)
-  let dados = 5;
-  if (dataManagement === 'complete_crm') dados = 9;
-  else if (dataManagement === 'basic_crm') dados = 7;
-  else if (dataManagement === 'spreadsheet') dados = 5;
-  else dados = 2;
-
-  // I - Inteligência (baseado em conversão + follow-up)
-  let inteligencia = (conversionRate / 10) * 7;
-  if (hasFollowUp === 'yes') inteligencia += 3;
-  else if (hasFollowUp === 'inconsistent') inteligencia += 1;
-  inteligencia = Math.min(inteligencia, 10);
-
-  // X - eXpansão (baseado em retorno + conversão)
-  let expansao = (conversionRate / 10) * 5;
-  if (returnRate === '60%+') expansao += 5;
-  else if (returnRate === '30-50%') expansao += 3;
-  else if (returnRate === '<30%') expansao += 1;
-  else expansao += 0;
-  expansao = Math.min(expansao, 10);
-
+function calculateRADIXScores(answers: Answers) {
   return {
-    recepcao: Math.round(recepcao),
-    automacao: Math.round(automacao),
-    dados: Math.round(dados),
-    inteligencia: Math.round(inteligencia),
-    expansao: Math.round(expansao),
+    // R - Recepção
+    recepcao: calculateRecepcaoScore(
+      answers.attendRate,
+      answers.responseTime
+    ),
+
+    // A - Automação
+    automacao: calculateAutomacaoScore(
+      answers.hasFollowUp,
+      answers.manualHours
+    ),
+
+    // D - Dados
+    dados: calculateDadosScore(
+      answers.dataManagement
+    ),
+
+    // I - Inteligência
+    inteligencia: calculateInteligenciaScore(
+      answers.conversionRate,
+      answers.hasFollowUp
+    ),
+
+    // X - eXpansão
+    expansao: calculateExpansaoScore(
+      answers.returnRate,
+      answers.conversionRate
+    )
   };
+}
+
+// Cálculos individuais
+
+function calculateRecepcaoScore(attendRate: number, responseTime: string) {
+  let score = (attendRate / 10) * 10; // base no atendimento
+
+  // Penaliza tempo de resposta ruim
+  if (responseTime === '+1day') score -= 4;
+  else if (responseTime === '2-5h') score -= 2;
+  else if (responseTime === '30min-2h') score -= 1;
+
+  return Math.max(0, Math.min(10, score));
+}
+
+function calculateAutomacaoScore(hasFollowUp: string, manualHours: number) {
+  let score = 5; // base neutra
+
+  // Follow-up
+  if (hasFollowUp === 'yes') score += 3;
+  else if (hasFollowUp === 'inconsistent') score += 1;
+  else score -= 2;
+
+  // Horas manuais (quanto menos, melhor)
+  if (manualHours < 2) score += 2;
+  else if (manualHours > 4) score -= 3;
+
+  return Math.max(0, Math.min(10, score));
+}
+
+function calculateDadosScore(dataOrg: string) {
+  const scores: Record<string, number> = {
+    'complete_crm': 9,
+    'basic_crm': 6,
+    'spreadsheet': 3,
+    'whatsapp': 1
+  };
+  return scores[dataOrg] || 1;
+}
+
+function calculateInteligenciaScore(conversionRate: number, hasFollowUp: string) {
+  let score = (conversionRate / 10) * 7; // 70% baseado em conversão
+
+  // Follow-up adiciona inteligência
+  if (hasFollowUp === 'yes') score += 3;
+  else if (hasFollowUp === 'inconsistent') score += 1;
+
+  return Math.max(0, Math.min(10, score));
+}
+
+function calculateExpansaoScore(returnRate: string, conversionRate: number) {
+  const returnScores: Record<string, number> = {
+    '60%+': 7,
+    '30-50%': 4,
+    '<30%': 2,
+    'unknown': 2
+  };
+
+  let score = returnScores[returnRate] || 2;
+
+  // Conversão alta = potencial de expansão
+  if (conversionRate >= 7) score += 2;
+  else if (conversionRate <= 4) score -= 1;
+
+  return Math.max(0, Math.min(10, score));
+}
+
+// Mantém função antiga para compatibilidade
+function calculateScores(answers: Answers) {
+  return calculateRADIXScores(answers);
 }
 
 export function formatCurrency(value: number): string {
