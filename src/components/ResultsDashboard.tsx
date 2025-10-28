@@ -172,9 +172,19 @@ export function ResultsDashboard({ results }: Props) {
           </div>
 
           <div className="bg-white/10 rounded-xl p-4">
-            <p className="text-sm opacity-90 mb-1">🎯 Seu maior gargalo está em</p>
+            <p className="text-sm opacity-90 mb-1">🎯 Seu maior gargalo está na</p>
             <p className="text-xl font-bold">
-              {Object.entries(results.scores).reduce((a, b) => a[1] < b[1] ? a : b)[0].charAt(0).toUpperCase() + Object.entries(results.scores).reduce((a, b) => a[1] < b[1] ? a : b)[0].slice(1)}
+              {(() => {
+                const bottleneck = Object.entries(results.scores).reduce((a, b) => a[1] < b[1] ? a : b)[0];
+                const nameMap: Record<string, string> = {
+                  'recepcao': 'Recepção',
+                  'automacao': 'Automação',
+                  'dados': 'Dados',
+                  'inteligencia': 'Inteligência',
+                  'expansao': 'eXpansão'
+                };
+                return nameMap[bottleneck] || bottleneck;
+              })()}
             </p>
           </div>
         </motion.div>

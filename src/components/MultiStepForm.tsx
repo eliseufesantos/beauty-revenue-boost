@@ -163,6 +163,7 @@ export function MultiStepForm({ onComplete, initialAnswers }: Props) {
   const [answers, setAnswers] = useState<Partial<Answers>>(initialAnswers);
   const [showInsight, setShowInsight] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const question = questions[currentQuestion];
   const progress = ((currentQuestion + 1) / questions.length) * 100;
@@ -178,17 +179,22 @@ export function MultiStepForm({ onComplete, initialAnswers }: Props) {
 
       // Insight visível: 5s
       setTimeout(() => {
-        setShowInsight(false);
-        
-        // Pausa antes de scroll: 1s
+        // Set transitioning before hiding insight to prevent flash
+        setIsTransitioning(true);
+
+        // Small delay then transition
         setTimeout(() => {
+          setShowInsight(false);
+
           if (currentQuestion < questions.length - 1) {
             setCurrentQuestion((prev) => prev + 1);
             window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Reset transitioning after question changes
+            setTimeout(() => setIsTransitioning(false), 100);
           } else {
             onComplete({ ...answers, [question.id]: value });
           }
-        }, 1000);
+        }, 300);
       }, 5000);
     }, 1500);
   };
@@ -209,12 +215,13 @@ export function MultiStepForm({ onComplete, initialAnswers }: Props) {
 
       <div className="max-w-2xl mx-auto mt-20">
         <AnimatePresence mode="wait">
-          {!showInsight ? (
+          {!showInsight && !isTransitioning ? (
             <motion.div
               key={`question-${currentQuestion}`}
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
               className="bg-card rounded-2xl p-4 sm:p-6 md:p-8 shadow-lg border border-border"
             >
               <h3 className="text-xl sm:text-2xl font-bold mb-2">{question.text}</h3>
@@ -254,11 +261,13 @@ export function MultiStepForm({ onComplete, initialAnswers }: Props) {
                 </div>
               )}
             </motion.div>
-          ) : (
+          ) : showInsight ? (
             <motion.div
               key={`insight-${currentQuestion}`}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.3 }}
               className="bg-primary/10 rounded-2xl p-8 border-2 border-primary"
             >
               {loading ? (
@@ -280,7 +289,7 @@ export function MultiStepForm({ onComplete, initialAnswers }: Props) {
                 </div>
               )}
             </motion.div>
-          )}
+          ) : null}
         </AnimatePresence>
       </div>
     </section>
