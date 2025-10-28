@@ -201,7 +201,7 @@ export function MultiStepForm({ onComplete, initialAnswers }: Props) {
   };
 
   return (
-    <section className="min-h-screen px-4 py-12">
+    <section className="min-h-screen px-4 py-12 flex items-center justify-center">
       <div className="fixed top-0 left-0 right-0 bg-card border-b border-border z-50 p-4">
         <div className="max-w-2xl mx-auto">
           <div className="flex items-center justify-center gap-3 mb-3">
@@ -218,7 +218,7 @@ export function MultiStepForm({ onComplete, initialAnswers }: Props) {
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto mt-20">
+      <div className="max-w-2xl w-full mx-auto">
         <AnimatePresence mode="wait">
           {!showInsight && !isTransitioning ? (
             <motion.div
