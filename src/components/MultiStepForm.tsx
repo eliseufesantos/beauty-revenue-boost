@@ -176,20 +176,17 @@ export function MultiStepForm({ onComplete, initialAnswers }: Props) {
       setLoading(false);
       setShowInsight(true);
 
-      // Insight visível: 5s
+      // Insight visível: 3s (reduzido de 5s)
       setTimeout(() => {
-        setShowInsight(false);
-        
-        // Pausa antes de scroll: 1s
-        setTimeout(() => {
-          if (currentQuestion < questions.length - 1) {
-            setCurrentQuestion((prev) => prev + 1);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          } else {
-            onComplete({ ...answers, [question.id]: value });
-          }
-        }, 1000);
-      }, 5000);
+        // Avança diretamente sem mostrar pergunta anterior novamente
+        if (currentQuestion < questions.length - 1) {
+          setCurrentQuestion((prev) => prev + 1);
+          setShowInsight(false);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+          onComplete({ ...answers, [question.id]: value });
+        }
+      }, 3000);
     }, 1500);
   };
 

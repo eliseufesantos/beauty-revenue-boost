@@ -4,7 +4,7 @@ import CountUp from 'react-countup';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { calculateQuickLeakage, formatCurrency } from '@/lib/calculations';
-import { AlertTriangle, Lock } from 'lucide-react';
+import { AlertTriangle, Lock, X } from 'lucide-react';
 
 interface Props {
   onCalculate: (leads: number, ticket: number) => void;
@@ -22,6 +22,14 @@ export function QuickCalculator({ onCalculate, onContinue }: Props) {
     setLeakage(result);
     onCalculate(leads, ticket);
     setShowResult(true);
+  };
+
+  const handleClose = () => {
+    setShowResult(false);
+  };
+
+  const handleExit = () => {
+    window.location.href = 'https://eucalyptus.com.br';
   };
 
   return (
@@ -101,9 +109,17 @@ export function QuickCalculator({ onCalculate, onContinue }: Props) {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
-                className="bg-card rounded-2xl p-4 sm:p-6 md:p-8 shadow-xl border-2 border-primary"
+                className="bg-card rounded-2xl p-4 sm:p-6 md:p-8 shadow-xl border-2 border-primary relative"
               >
-                <div className="flex items-center gap-3 mb-6">
+                <button
+                  onClick={handleClose}
+                  className="absolute top-4 right-4 p-2 rounded-full hover:bg-muted transition-colors"
+                  aria-label="Fechar"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+
+                <div className="flex items-center gap-3 mb-6 pr-10">
                   <div className="text-3xl">💎</div>
                   <h2 className="text-lg sm:text-xl md:text-2xl font-bold">LUCRO OCULTO DETECTADO</h2>
                 </div>
@@ -152,9 +168,20 @@ export function QuickCalculator({ onCalculate, onContinue }: Props) {
                   <Button onClick={onContinue} size="lg" className="w-full text-sm sm:text-base md:text-lg h-12 sm:h-14">
                     SIM, QUERO O MÉTODO RADIX COMPLETO
                   </Button>
-                  <Button variant="outline" size="lg" className="w-full text-sm sm:text-base">
-                    Não, prefiro deixar dinheiro na mesa
+                  <Button
+                    onClick={onContinue}
+                    variant="default"
+                    size="lg"
+                    className="w-full text-sm sm:text-base md:text-lg h-12 sm:h-14 bg-orange-600 hover:bg-orange-700"
+                  >
+                    MUDEI DE IDEIA - QUERO VER O DIAGNÓSTICO
                   </Button>
+                  <button
+                    onClick={handleExit}
+                    className="w-full text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
+                  >
+                    sair
+                  </button>
                 </div>
               </motion.div>
             )}

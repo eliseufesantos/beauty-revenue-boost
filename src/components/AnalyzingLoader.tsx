@@ -20,16 +20,16 @@ export function AnalyzingLoader({ onComplete }: Props) {
 
   useEffect(() => {
     console.log('Loader started');
-    
+
     const interval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
           clearInterval(interval);
           console.log('Loader finished');
-          setTimeout(onComplete, 500);
+          setTimeout(onComplete, 300);
           return 100;
         }
-        return prev + 2;
+        return prev + 5;
       });
     }, 100);
 
