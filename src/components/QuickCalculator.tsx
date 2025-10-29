@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { calculateQuickLeakage, formatCurrency } from '@/lib/calculations';
 import { AlertTriangle, Lock } from 'lucide-react';
-import eucalyptusLogo from '@/assets/eucalyptus-logo.svg';
+import eucalyptusLogo from '@/assets/eucalyptus-logo.jpg';
 import {
   AlertDialog,
   AlertDialogAction,
