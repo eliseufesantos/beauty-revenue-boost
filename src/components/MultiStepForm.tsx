@@ -5,7 +5,7 @@ import { Slider } from '@/components/ui/slider';
 import { Progress } from '@/components/ui/progress';
 import { Lightbulb, AlertTriangle, DollarSign, Clock, TrendingUp, Award } from 'lucide-react';
 import { Answers } from '@/lib/calculations';
-import eucalyptusLogo from '@/assets/eucalyptus-logo.svg';
+import eucalyptusLogo from '@/assets/eucalyptus-logo.jpg';
 
 interface Props {
   onComplete: (answers: Partial<Answers>) => void;
