@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Target, Zap, MapPin } from 'lucide-react';
 import fotoEliseu from '@/assets/foto-eliseu-touca.jpg';
-import eucalyptusLogo from '@/assets/eucalyptus-logo.jpg';
+import eucalyptusLogo from '@/assets/eucalyptus-logo.png';
 
 interface Props {
   onStart: () => void;
