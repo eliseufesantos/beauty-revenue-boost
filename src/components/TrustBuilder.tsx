@@ -3,8 +3,8 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Target, Zap, MapPin } from 'lucide-react';
-import fotoEliseu from '@/assets/foto-eliseu.jpg';
-import eucalyptusLogo from '@/assets/eucalyptus-logo.svg';
+import fotoEliseu from '@/assets/foto-eliseu-touca.jpg';
+import eucalyptusLogo from '@/assets/eucalyptus-logo.jpg';
 
 interface Props {
   onStart: () => void;
