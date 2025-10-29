@@ -205,7 +205,7 @@ export function MultiStepForm({ onComplete, initialAnswers }: Props) {
       <div className="fixed top-0 left-0 right-0 bg-card border-b border-border z-50 p-4">
         <div className="max-w-2xl mx-auto">
           <div className="flex items-center justify-center gap-3 mb-3">
-            <img src={eucalyptusLogo} alt="Eucalyptus" className="w-8 h-8 sm:w-10 sm:h-10" />
+            <img src={eucalyptusLogo} alt="Eucalyptus" className="w-12 h-12 sm:w-14 sm:h-14" />
             <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground">EUCALYPTUS</h2>
           </div>
           <div className="flex items-center justify-between mb-2">

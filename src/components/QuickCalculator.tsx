@@ -45,7 +45,7 @@ export function QuickCalculator({ onCalculate, onContinue }: Props) {
           transition={{ duration: 0.6 }}
         >
           <div className="flex items-center justify-center gap-3 mb-8">
-            <img src={eucalyptusLogo} alt="Eucalyptus" className="w-10 h-10 sm:w-12 sm:h-12" />
+            <img src={eucalyptusLogo} alt="Eucalyptus" className="w-14 h-14 sm:w-16 sm:h-16" />
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">EUCALYPTUS</h2>
           </div>
 

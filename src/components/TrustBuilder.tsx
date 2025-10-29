@@ -23,7 +23,7 @@ export function TrustBuilder({ onStart }: Props) {
       >
         <div className="bg-card rounded-2xl p-4 sm:p-6 md:p-8 shadow-lg border border-border">
           <div className="flex items-center justify-center gap-3 mb-6">
-            <img src={eucalyptusLogo} alt="Eucalyptus" className="w-10 h-10 sm:w-12 sm:h-12" />
+            <img src={eucalyptusLogo} alt="Eucalyptus" className="w-14 h-14 sm:w-16 sm:h-16" />
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">EUCALYPTUS</h2>
           </div>
 
