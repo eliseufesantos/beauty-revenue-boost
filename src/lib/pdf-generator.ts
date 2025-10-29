@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
 import { CalculationResults, formatCurrency } from './calculations';
+import { RADIX_LABELS } from './constants';
 
 export interface LeadData {
   name: string;
@@ -51,17 +52,9 @@ export function generatePDF(results: CalculationResults, leadData: LeadData): Bl
   doc.text('Score RADIX:', 20, yPos + 10);
   yPos += 20;
 
-  const scoreLabels = {
-    recepcao: 'R - Recepção',
-    automacao: 'A - Automação',
-    dados: 'D - Dados',
-    inteligencia: 'I - Inteligência',
-    expansao: 'X - eXpansão',
-  };
-
   Object.entries(results.scores).forEach(([key, value]) => {
     doc.setFontSize(11);
-    doc.text(`${scoreLabels[key as keyof typeof scoreLabels]}: ${value}/10`, 30, yPos);
+    doc.text(`${RADIX_LABELS[key as keyof typeof RADIX_LABELS]}: ${value}/10`, 30, yPos);
     yPos += 8;
   });
 

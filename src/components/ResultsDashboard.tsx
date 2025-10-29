@@ -11,7 +11,8 @@ import {
   Legend,
 } from 'chart.js';
 import { CalculationResults, formatCurrency } from '@/lib/calculations';
-import { AlertCircle, TrendingDown, Clock, Users } from 'lucide-react';
+import { getBottleneck } from '@/lib/constants';
+import { AlertCircle, TrendingDown, Clock, Target, DollarSign, TrendingUp, Activity } from 'lucide-react';
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
@@ -88,14 +89,18 @@ export function ResultsDashboard({ results }: Props) {
 
         {/* Opportunity Layers */}
         <div className="mb-8">
-          <h3 className="text-2xl font-bold mb-6">💰 Camadas de Lucro Oculto</h3>
+          <div className="flex items-center gap-3 mb-6">
+            <DollarSign className="w-8 h-8 text-primary" />
+            <h3 className="text-2xl font-bold">Camadas de Lucro Oculto</h3>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {results.leakages.map((leakage, index) => {
-              const priorityLabel = leakage.type === 'critical' || leakage.type === 'high' 
-                ? 'Prioridade Alta' 
+              const priorityLabel = leakage.type === 'critical' || leakage.type === 'high'
+                ? 'Prioridade Alta'
                 : 'Prioridade Média';
-              const emoji = leakage.type === 'critical' ? '🔴' : leakage.type === 'high' ? '🟠' : '🟡';
-              
+              const Icon = leakage.type === 'critical' ? AlertCircle : leakage.type === 'high' ? TrendingDown : Clock;
+              const iconColor = leakage.type === 'critical' ? 'text-destructive' : leakage.type === 'high' ? 'text-primary' : 'text-muted-foreground';
+
               return (
                 <motion.div
                   key={index}
@@ -111,7 +116,15 @@ export function ResultsDashboard({ results }: Props) {
                   }`}
                 >
                   <div className="flex items-start justify-between mb-3">
-                    <span className="text-2xl">{emoji}</span>
+                    <div className={`p-2 rounded-lg ${
+                      leakage.type === 'critical'
+                        ? 'bg-destructive/10'
+                        : leakage.type === 'high'
+                          ? 'bg-primary/10'
+                          : 'bg-muted/20'
+                    }`}>
+                      <Icon className={`w-6 h-6 ${iconColor}`} />
+                    </div>
                     <span
                       className={`text-xs px-2 py-1 rounded-full ${
                         leakage.type === 'critical' || leakage.type === 'high'
@@ -142,7 +155,11 @@ export function ResultsDashboard({ results }: Props) {
           className="bg-gradient-to-br from-primary to-primary/80 rounded-2xl p-8 shadow-xl text-white"
         >
           <div className="text-center mb-6">
-            <div className="text-4xl mb-4">💎</div>
+            <div className="flex justify-center mb-4">
+              <div className="p-4 bg-white/10 rounded-full">
+                <TrendingUp className="w-8 h-8 text-white" />
+              </div>
+            </div>
             <h3 className="text-3xl font-bold mb-2">Diagnóstico Método RADIX™ Completo</h3>
             <p className="text-sm opacity-90">
               Identificamos {results.leakages.length} camadas de lucro oculto na sua operação
@@ -150,6 +167,9 @@ export function ResultsDashboard({ results }: Props) {
           </div>
 
           <div className="border-2 border-white/20 rounded-xl p-6 mb-6 text-center">
+            <div className="flex justify-center mb-2">
+              <DollarSign className="w-6 h-6 text-white opacity-90" />
+            </div>
             <p className="text-sm opacity-90 mb-2">LUCRO OCULTO TOTAL</p>
             <p className="text-5xl font-bold mb-4">
               R$ <CountUp end={results.total} duration={2.5} separator="." decimals={0} />
@@ -162,30 +182,35 @@ export function ResultsDashboard({ results }: Props) {
             </p>
           </div>
 
-          <div className="bg-white/10 rounded-xl p-4 mb-4">
-            <p className="text-sm mb-2">
-              Esse valor está "adormecido" na sua operação.
-            </p>
-            <p className="text-sm font-semibold">
-              Com o Ecossistema Eucalyptus, clientes recuperam 60-80% desse potencial em 90 dias.
-            </p>
+          <div className="bg-white/10 rounded-xl p-5 mb-4">
+            <div className="flex items-start gap-3">
+              <Activity className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm mb-2">
+                  Esse valor está "adormecido" na sua operação.
+                </p>
+                <p className="text-sm font-semibold">
+                  Com o Ecossistema Eucalyptus, clientes recuperam 60-80% desse potencial em 90 dias.
+                </p>
+              </div>
+            </div>
           </div>
 
-          <div className="bg-white/10 rounded-xl p-4">
-            <p className="text-sm opacity-90 mb-1">🎯 Seu maior gargalo está na</p>
-            <p className="text-xl font-bold">
-              {(() => {
-                const bottleneck = Object.entries(results.scores).reduce((a, b) => a[1] < b[1] ? a : b)[0];
-                const nameMap: Record<string, string> = {
-                  'recepcao': 'Recepção',
-                  'automacao': 'Automação',
-                  'dados': 'Dados',
-                  'inteligencia': 'Inteligência',
-                  'expansao': 'eXpansão'
-                };
-                return nameMap[bottleneck] || bottleneck;
-              })()}
-            </p>
+          <div className="bg-white/10 rounded-xl p-5 border-2 border-white/20">
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-white/10 rounded-lg flex-shrink-0">
+                <Target className="w-5 h-5 text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm opacity-90 mb-2">Área prioritária de melhoria:</p>
+                <p className="text-2xl font-bold">
+                  {getBottleneck(results.scores).name}
+                </p>
+                <p className="text-xs opacity-75 mt-1">
+                  Score atual: {getBottleneck(results.scores).score.toFixed(1)}/10 - Foque seus esforços aqui primeiro
+                </p>
+              </div>
+            </div>
           </div>
         </motion.div>
       </motion.div>
