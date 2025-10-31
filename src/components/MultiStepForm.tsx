@@ -264,6 +264,11 @@ export function MultiStepForm({ onComplete, initialAnswers }: Props) {
   const progress = ((currentQuestion + 1) / questions.length) * 100;
   const progressText = getProgressText(progress);
 
+  // Sync with initialAnswers if they change (e.g., from QuickCalculator)
+  useEffect(() => {
+    setAnswers(prev => ({ ...initialAnswers, ...prev }));
+  }, [initialAnswers]);
+
   useEffect(() => {
     // Play milestone sounds at 50% and 100%
     if (progress === 50 || progress === 100) {
@@ -321,20 +326,18 @@ export function MultiStepForm({ onComplete, initialAnswers }: Props) {
     setShowTip(false);
     setSelectedOption(null);
     setSliderValue(null);
-    
+
     setTimeout(() => {
       if (currentQuestion < questions.length - 1) {
         setCurrentQuestion(prev => prev + 1);
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
-        // Ensure all required fields have default values for compatibility
+        // Merge current answers with initialAnswers to preserve QuickCalc values
         const finalAnswers: Partial<Answers> = {
-          ...answers,
+          ...initialAnswers, // Preserve leads and ticket from QuickCalculator
+          ...answers, // Override with form answers
           attendRate: 7, // Default value for compatibility
           goals: ['better_conversion'], // Default goal
-          // Set default values for removed questions if not present
-          leads: (answers.leads as number) || 50,
-          ticket: (answers.ticket as number) || 1500,
         };
         onComplete(finalAnswers);
       }
@@ -349,7 +352,7 @@ export function MultiStepForm({ onComplete, initialAnswers }: Props) {
   return (
     <div className="min-h-screen px-4 py-12 flex items-center justify-center" style={{ backgroundColor: '#fdf4e0' }}>
       {/* Progress Bar - Sticky */}
-      <div className="fixed top-0 left-0 right-0 z-50 p-4" style={{ backgroundColor: '#fdf4e0', height: '60px', borderBottom: '1px solid #e8dcc8' }}>
+      <div className="fixed top-0 left-0 right-0 z-40 p-4 pointer-events-none" style={{ backgroundColor: '#fdf4e0', height: '60px', borderBottom: '1px solid #e8dcc8' }}>
         <div className="max-w-2xl mx-auto flex items-center gap-3">
           <span className="text-2xl">🎯</span>
           <div className="flex-1">
@@ -363,9 +366,9 @@ export function MultiStepForm({ onComplete, initialAnswers }: Props) {
           </div>
           <span className="text-sm font-medium" style={{ color: '#595d5b' }}>{Math.round(progress)}%</span>
           <span className="text-sm font-bold hidden sm:inline" style={{ color: '#b87353' }}>{progressText}</span>
-          <button 
+          <button
             onClick={toggleSound}
-            className="p-2 rounded-lg hover:bg-white/50 transition-colors"
+            className="p-2 rounded-lg hover:bg-white/50 transition-colors pointer-events-auto"
             aria-label={soundEnabled ? 'Desativar som' : 'Ativar som'}
           >
             {soundEnabled ? (
@@ -408,23 +411,32 @@ export function MultiStepForm({ onComplete, initialAnswers }: Props) {
 
             {question.type === 'cards' && question.options && (
               <div className="space-y-3">
-                {question.options.map((option) => (
-                  <button
-                    key={option.value}
-                    onClick={() => handleOptionClick(option)}
-                    disabled={showTip}
-                    className="w-full p-4 text-left rounded-xl transition-all text-base sm:text-lg"
-                    style={{
-                      backgroundColor: selectedOption === option.value ? '#b87353' : '#fdf4e0',
-                      border: `2px solid ${selectedOption === option.value ? '#b87353' : '#e8dcc8'}`,
-                      color: selectedOption === option.value ? '#ffffff' : '#595d5b',
-                      cursor: showTip ? 'not-allowed' : 'pointer',
-                      opacity: showTip && selectedOption !== option.value ? 0.5 : 1,
-                    }}
-                  >
-                    {option.label}
-                  </button>
-                ))}
+                {question.options.map((option) => {
+                  const isSelected = selectedOption === option.value;
+                  const isDisabled = showTip;
+                  const isDimmed = showTip && !isSelected;
+
+                  return (
+                    <button
+                      key={option.value}
+                      onClick={() => handleOptionClick(option)}
+                      disabled={isDisabled}
+                      className={`
+                        w-full p-4 text-left rounded-xl text-base sm:text-lg
+                        transition-all duration-200 ease-in-out
+                        border-2
+                        ${isSelected
+                          ? 'bg-[#b87353] border-[#b87353] text-white shadow-lg scale-[1.02]'
+                          : 'bg-[#fdf4e0] border-[#e8dcc8] text-[#595d5b] hover:border-[#b87353] hover:shadow-md hover:scale-[1.01]'
+                        }
+                        ${isDisabled ? 'cursor-not-allowed' : 'cursor-pointer active:scale-[0.99]'}
+                        ${isDimmed ? 'opacity-50' : 'opacity-100'}
+                      `}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
               </div>
             )}
 
@@ -436,15 +448,17 @@ export function MultiStepForm({ onComplete, initialAnswers }: Props) {
                       {question.sliderConfig.formatLabel(sliderValue ?? question.sliderConfig.defaultValue)}
                     </span>
                   </div>
-                  <Slider
-                    value={[sliderValue ?? question.sliderConfig.defaultValue]}
-                    onValueChange={handleSliderChange}
-                    min={question.sliderConfig.min}
-                    max={question.sliderConfig.max}
-                    step={question.sliderConfig.step}
-                    disabled={showTip}
-                    className="w-full"
-                  />
+                  <div className="py-4">
+                    <Slider
+                      value={[sliderValue ?? question.sliderConfig.defaultValue]}
+                      onValueChange={handleSliderChange}
+                      min={question.sliderConfig.min}
+                      max={question.sliderConfig.max}
+                      step={question.sliderConfig.step}
+                      disabled={showTip}
+                      className="w-full cursor-pointer"
+                    />
+                  </div>
                   <div className="flex justify-between mt-2 text-sm" style={{ color: '#8d837c' }}>
                     <span>{question.sliderConfig.formatLabel(question.sliderConfig.min)}</span>
                     <span>{question.sliderConfig.formatLabel(question.sliderConfig.max)}</span>
@@ -453,19 +467,14 @@ export function MultiStepForm({ onComplete, initialAnswers }: Props) {
                 {!showTip && (
                   <button
                     onClick={handleSliderConfirm}
-                    className="w-full py-3 px-8 rounded-lg font-semibold text-white transition-all"
-                    style={{
-                      background: 'linear-gradient(135deg, #b87353 0%, #edd08c 100%)',
-                      boxShadow: '0 2px 8px rgba(184, 115, 83, 0.3)',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'scale(1.02)';
-                      e.currentTarget.style.filter = 'brightness(1.1)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'scale(1)';
-                      e.currentTarget.style.filter = 'brightness(1)';
-                    }}
+                    className="
+                      w-full py-3 px-8 rounded-lg font-semibold text-white
+                      transition-all duration-200 ease-in-out
+                      bg-gradient-to-br from-[#b87353] to-[#edd08c]
+                      shadow-[0_2px_8px_rgba(184,115,83,0.3)]
+                      hover:scale-[1.02] hover:brightness-110 hover:shadow-[0_4px_12px_rgba(184,115,83,0.4)]
+                      active:scale-[0.98]
+                    "
                   >
                     Confirmar
                   </button>
@@ -502,25 +511,14 @@ export function MultiStepForm({ onComplete, initialAnswers }: Props) {
                   
                   <button
                     onClick={handleNext}
-                    className="w-full py-3 px-8 rounded-lg font-semibold text-white transition-all"
-                    style={{
-                      background: 'linear-gradient(135deg, #b87353 0%, #edd08c 100%)',
-                      boxShadow: '0 2px 8px rgba(184, 115, 83, 0.3)',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'scale(1.02)';
-                      e.currentTarget.style.filter = 'brightness(1.1)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'scale(1)';
-                      e.currentTarget.style.filter = 'brightness(1)';
-                    }}
-                    onMouseDown={(e) => {
-                      e.currentTarget.style.transform = 'scale(0.98)';
-                    }}
-                    onMouseUp={(e) => {
-                      e.currentTarget.style.transform = 'scale(1.02)';
-                    }}
+                    className="
+                      w-full py-3 px-8 rounded-lg font-semibold text-white
+                      transition-all duration-200 ease-in-out
+                      bg-gradient-to-br from-[#b87353] to-[#edd08c]
+                      shadow-[0_2px_8px_rgba(184,115,83,0.3)]
+                      hover:scale-[1.02] hover:brightness-110 hover:shadow-[0_4px_12px_rgba(184,115,83,0.4)]
+                      active:scale-[0.98]
+                    "
                   >
                     {currentQuestion === questions.length - 1 ? 'Ver Diagnóstico Completo 🎯' : 'Entendi, próxima →'}
                   </button>
