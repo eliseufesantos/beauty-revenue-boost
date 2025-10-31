@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
 import { Progress } from '@/components/ui/progress';
-import { Lightbulb, AlertTriangle, DollarSign, Clock, TrendingUp, Award } from 'lucide-react';
+import { Volume2, VolumeX } from 'lucide-react';
 import { Answers } from '@/lib/calculations';
 import eucalyptusLogo from '@/assets/eucalyptus-logo.png';
 
@@ -15,288 +13,474 @@ interface Props {
 interface Question {
   id: keyof Answers;
   text: string;
-  helper?: string;
-  type: 'slider' | 'cards';
-  options?: Array<{ value: any; label: string; emoji?: string }>;
-  min?: number;
-  max?: number;
-  insight: {
-    icon: any;
-    title: string;
-    body: string | ((value: any) => string);
-  };
+  type: 'cards';
+  options: Array<{ value: any; label: string; isGood: boolean }>;
+  goodTip: { emoji: string; title: string; text: string };
+  badTip: { emoji: string; title: string; text: string };
 }
 
 const questions: Question[] = [
-  {
-    id: 'attendRate',
-    text: 'De cada 10 pessoas que demonstram interesse, quantas você consegue REALMENTE atender?',
-    helper: '💡 Se não sabe o número exato, dê uma estimativa aproximada.',
-    type: 'slider',
-    min: 0,
-    max: 10,
-    insight: {
-      icon: Lightbulb,
-      title: 'INSIGHT',
-      body: (value: number) =>
-        `Se você atende apenas ${value} de 10 leads, está perdendo ${((10 - value) / 10) * 100}% da receita potencial.`,
-    },
-  },
-  {
-    id: 'responseTime',
-    text: 'Quanto tempo, em média, você demora para responder um novo lead no WhatsApp?',
-    type: 'cards',
-    options: [
-      { value: '<5min', label: 'Menos de 5min', emoji: '🟢' },
-      { value: '30min-2h', label: '30min a 2h', emoji: '🟡' },
-      { value: '2-5h', label: '2-5h', emoji: '🟠' },
-      { value: '+1day', label: '+1 dia', emoji: '🔴' },
-    ],
-    insight: {
-      icon: AlertTriangle,
-      title: 'ATENÇÃO',
-      body: 'Leads que recebem resposta em +2h têm 400% menos chance de conversão. Tempo de resposta é o fator #1 de conversão.',
-    },
-  },
-  {
-    id: 'hasFollowUp',
-    text: 'Você tem um processo de follow-up estruturado?',
-    helper: '(Ex: lembrar o lead após 24h, 3 dias, 1 semana...)',
-    type: 'cards',
-    options: [
-      { value: 'yes', label: '✅ Sim, tenho um sistema (manual ou automático)' },
-      { value: 'inconsistent', label: '⚠️ Sim, mas é inconsistente' },
-      { value: 'no', label: '❌ Não, respondo só quando o lead volta' },
-    ],
-    insight: {
-      icon: DollarSign,
-      title: 'VAZAMENTO CRÍTICO',
-      body: "65% dos leads que 'pensam melhor' NUNCA voltam espontaneamente. Sem follow-up estruturado, você está jogando dinheiro no lixo.",
-    },
-  },
-  {
-    id: 'manualHours',
-    text: 'Quantas horas POR DIA você ou sua equipe gastam respondendo WhatsApp/Instagram?',
-    helper: '💡 Multiplique por quantas pessoas fazem isso. Ex: 2 pessoas x 4h = 8h/dia total',
-    type: 'slider',
-    min: 0,
-    max: 8,
-    insight: {
-      icon: Clock,
-      title: 'CUSTO OCULTO DETECTADO',
-      body: (hours: number) =>
-        `${hours} horas/dia = ${hours * 30} horas/mês\n\nCom automação: Reduz para 30h/mês\nEconomia: R$ ${((hours * 30 - 30) * 80).toLocaleString('pt-BR')}/mês`,
-    },
-  },
-  {
-    id: 'conversionRate',
-    text: 'De cada 10 pessoas que AGENDAM avaliação, quantas FECHAM o procedimento?',
-    helper: '💡 Não precisa ser exato. Dê um "chute educado".',
-    type: 'slider',
-    min: 0,
-    max: 10,
-    insight: {
-      icon: TrendingUp,
-      title: 'COMPARATIVO DE MERCADO',
-      body: (value: number) => {
-        const percentage = (value / 10) * 100;
-        if (percentage >= 70) return 'Você está no TOP! Foco agora é aumentar volume de leads.';
-        if (percentage >= 45)
-          return 'Você está ACIMA da média, mas tem potencial de crescer 20% apenas otimizando o atendimento.';
-        return 'Há muito espaço para melhoria. Com processo estruturado, é possível dobrar sua conversão.';
-      },
-    },
-  },
-  {
-    id: 'returnRate',
-    text: 'Quantos % dos seus pacientes RETORNAM para manutenção ou novos procedimentos?',
-    helper: '(Ex: Botox recomendado a cada 4-6 meses)',
-    type: 'cards',
-    options: [
-      { value: '<30%', label: 'Menos de 30%', emoji: '😢' },
-      { value: '30-50%', label: '30% a 50%', emoji: '😐' },
-      { value: '60%+', label: 'Mais de 60%', emoji: '😊' },
-      { value: 'unknown', label: 'Não sei / Não controlo isso' },
-    ],
-    insight: {
-      icon: Award,
-      title: 'VAZAMENTO GIGANTE',
-      body: 'O MAIOR lucro vem do LIFETIME VALUE. Paciente que retorna 3x = 4x mais lucrativo. Clínicas top têm 60%+ de retorno.',
-    },
-  },
   {
     id: 'dataManagement',
     text: 'Como você gerencia os dados dos seus pacientes?',
     type: 'cards',
     options: [
-      { value: 'whatsapp', label: '📱 WhatsApp + Caderno/Cabeça' },
-      { value: 'spreadsheet', label: '📊 Planilha Excel/Google' },
-      { value: 'basic_crm', label: '💼 Sistema/CRM básico' },
-      { value: 'complete_crm', label: '🏆 CRM completo integrado' },
+      { value: 'complete_crm', label: '🏆 CRM completo integrado', isGood: true },
+      { value: 'basic_crm', label: '💼 Sistema/CRM básico', isGood: true },
+      { value: 'spreadsheet', label: '📊 Planilha Excel/Google', isGood: false },
+      { value: 'whatsapp', label: '📱 WhatsApp + Caderno/Cabeça', isGood: false },
     ],
-    insight: {
-      icon: Lightbulb,
-      title: 'ORGANIZAÇÃO = DINHEIRO',
-      body: 'Clínicas com CRM completo têm 3x mais retorno de pacientes e perdem 80% menos leads.',
+    goodTip: {
+      emoji: '✅',
+      title: 'Ótimo começo!',
+      text: 'Vamos transformá-lo em máquina de conversão.',
+    },
+    badTip: {
+      emoji: '⚠️',
+      title: 'Aqui está o gap principal.',
+      text: '30% dos leads se perdem sem CRM.',
     },
   },
   {
-    id: 'goals',
-    text: 'Qual seu objetivo principal? (pode escolher mais de um)',
+    id: 'leads',
+    text: 'Quantos leads você recebe por mês?',
     type: 'cards',
     options: [
-      { value: 'more_leads', label: 'Aumentar quantidade de leads' },
-      { value: 'better_conversion', label: 'Melhorar conversão' },
-      { value: 'save_time', label: 'Economizar tempo da equipe' },
-      { value: 'more_return', label: 'Aumentar retorno de pacientes' },
-      { value: 'predictability', label: 'Ter previsibilidade' },
+      { value: 150, label: '100+ leads/mês', isGood: true },
+      { value: 75, label: '50-100 leads/mês', isGood: true },
+      { value: 30, label: 'Menos de 50', isGood: false },
+      { value: 0, label: 'Não sei / Não controlo', isGood: false },
     ],
-    insight: {
-      icon: TrendingUp,
-      title: 'ENTENDIDO',
-      body: 'Vou calibrar os resultados de acordo com seus objetivos.',
+    goodTip: {
+      emoji: '🎯',
+      title: 'Volume excelente!',
+      text: 'Agora é converter de forma previsível.',
+    },
+    badTip: {
+      emoji: '💭',
+      title: 'Volume moderado.',
+      text: 'Focar em converter mais dos que já tem.',
+    },
+  },
+  {
+    id: 'hasFollowUp',
+    text: 'Você tem um processo de follow-up estruturado?',
+    type: 'cards',
+    options: [
+      { value: 'yes', label: '✅ Sim, tenho um sistema', isGood: true },
+      { value: 'inconsistent', label: '⚠️ Sim, mas é inconsistente', isGood: false },
+      { value: 'no', label: '❌ Não, respondo só quando o lead volta', isGood: false },
+    ],
+    goodTip: {
+      emoji: '⭐',
+      title: 'Processo estruturado é raro!',
+      text: 'Vamos automatizar e multiplicar.',
+    },
+    badTip: {
+      emoji: '⚠️',
+      title: '80% das vendas = após 5º contato.',
+      text: 'Maioria desiste no 2º.',
+    },
+  },
+  {
+    id: 'responseTime',
+    text: 'Quanto tempo, em média, você demora para responder um novo lead?',
+    type: 'cards',
+    options: [
+      { value: '<5min', label: '🟢 Menos de 5min', isGood: true },
+      { value: '30min-2h', label: '🟡 30min a 2h', isGood: false },
+      { value: '2-5h', label: '🟠 2-5h', isGood: false },
+      { value: '+1day', label: '🔴 +1 dia', isGood: false },
+    ],
+    goodTip: {
+      emoji: '🚀',
+      title: 'Velocidade = conversão!',
+      text: '<5min = 400% mais chance de fechar.',
+    },
+    badTip: {
+      emoji: '📊',
+      title: 'Cada minuto = -10% conversão.',
+      text: '2h vs 5min = perder 70% dos leads.',
+    },
+  },
+  {
+    id: 'conversionRate',
+    text: 'De cada 10 pessoas que AGENDAM, quantas FECHAM?',
+    type: 'cards',
+    options: [
+      { value: 4, label: '30% ou mais (3+)', isGood: true },
+      { value: 2.5, label: '20-30% (2-3)', isGood: true },
+      { value: 1.5, label: '10-20% (1-2)', isGood: false },
+      { value: 0.5, label: 'Menos de 10% ou não sei', isGood: false },
+    ],
+    goodTip: {
+      emoji: '💡',
+      title: 'Taxa sólida!',
+      text: 'Com automação: 40-50% é possível.',
+    },
+    badTip: {
+      emoji: '⚠️',
+      title: 'Taxa baixa = vazamento.',
+      text: 'Clínicas organizadas fazem 30-40%.',
+    },
+  },
+  {
+    id: 'returnRate',
+    text: 'Quantos % dos seus pacientes RETORNAM para manutenção?',
+    type: 'cards',
+    options: [
+      { value: '60%+', label: '😊 Mais de 60%', isGood: true },
+      { value: '30-50%', label: '😐 30% a 50%', isGood: true },
+      { value: '<30%', label: '😢 Menos de 30%', isGood: false },
+      { value: 'unknown', label: 'Não sei / Não controlo isso', isGood: false },
+    ],
+    goodTip: {
+      emoji: '✅',
+      title: 'Retenção excelente!',
+      text: 'Lembretes automáticos escalam isso.',
+    },
+    badTip: {
+      emoji: '🔍',
+      title: 'Retorno baixo = receita perdida.',
+      text: '60-70% é possível com lembretes.',
+    },
+  },
+  {
+    id: 'manualHours',
+    text: 'Quantas horas POR DIA você gasta respondendo WhatsApp/Instagram?',
+    type: 'cards',
+    options: [
+      { value: 1, label: 'Menos de 2h', isGood: true },
+      { value: 3, label: '2-4h', isGood: false },
+      { value: 5, label: '4-6h', isGood: false },
+      { value: 7, label: 'Mais de 6h', isGood: false },
+    ],
+    goodTip: {
+      emoji: '🎯',
+      title: 'Operação enxuta!',
+      text: 'Ainda dá pra otimizar 50%.',
+    },
+    badTip: {
+      emoji: '⚠️',
+      title: '4h/dia = 80h/mês desperdiçadas.',
+      text: 'R$ 6-10k jogados fora.',
+    },
+  },
+  {
+    id: 'ticket',
+    text: 'Qual o ticket médio dos seus procedimentos? (última pergunta!)',
+    type: 'cards',
+    options: [
+      { value: 2500, label: 'R$ 2.000+', isGood: true },
+      { value: 1500, label: 'R$ 1.000 a R$ 2.000', isGood: true },
+      { value: 750, label: 'R$ 500 a R$ 1.000', isGood: false },
+      { value: 300, label: 'Menos de R$ 500', isGood: false },
+    ],
+    goodTip: {
+      emoji: '🎉',
+      title: 'Você entende ROI!',
+      text: 'Payback em 45-90 dias.',
+    },
+    badTip: {
+      emoji: '💭',
+      title: 'Vamos mostrar os números.',
+      text: 'Sistema próprio < 2 meses de agência.',
     },
   },
 ];
 
+// Audio helper
+class AudioHelper {
+  private audioContext: AudioContext | null = null;
+  private enabled: boolean = true;
+
+  constructor() {
+    if (typeof window !== 'undefined') {
+      this.enabled = localStorage.getItem('soundEnabled') !== 'false';
+    }
+  }
+
+  private getContext() {
+    if (!this.audioContext) {
+      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    return this.audioContext;
+  }
+
+  playGoodSound() {
+    if (!this.enabled) return;
+    const ctx = this.getContext();
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    
+    oscillator.frequency.value = 800;
+    gainNode.gain.value = 0.3;
+    
+    oscillator.start();
+    oscillator.stop(ctx.currentTime + 0.2);
+  }
+
+  playBadSound() {
+    if (!this.enabled) return;
+    const ctx = this.getContext();
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    
+    oscillator.frequency.value = 400;
+    gainNode.gain.value = 0.25;
+    
+    oscillator.start();
+    oscillator.stop(ctx.currentTime + 0.2);
+  }
+
+  playMilestoneSound() {
+    if (!this.enabled) return;
+    const ctx = this.getContext();
+    const frequencies = [523.25, 659.25, 783.99]; // C-E-G chord
+    
+    frequencies.forEach((freq, i) => {
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      
+      oscillator.frequency.value = freq;
+      gainNode.gain.value = 0.35 / frequencies.length;
+      
+      oscillator.start(ctx.currentTime + i * 0.1);
+      oscillator.stop(ctx.currentTime + i * 0.1 + 0.3);
+    });
+  }
+
+  toggle() {
+    this.enabled = !this.enabled;
+    localStorage.setItem('soundEnabled', this.enabled.toString());
+    return this.enabled;
+  }
+
+  isEnabled() {
+    return this.enabled;
+  }
+}
+
+const getProgressText = (progress: number): string => {
+  if (progress <= 12) return 'Vamos começar!';
+  if (progress <= 37) return 'Ótimo!';
+  if (progress <= 62) return 'Indo bem!';
+  if (progress <= 87) return 'Quase lá!';
+  if (progress <= 99) return 'Finalizando!';
+  return '🎉 Completo!';
+};
+
 export function MultiStepForm({ onComplete, initialAnswers }: Props) {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Partial<Answers>>(initialAnswers);
-  const [showInsight, setShowInsight] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [showTip, setShowTip] = useState(false);
+  const [selectedOption, setSelectedOption] = useState<any>(null);
+  const [isGoodAnswer, setIsGoodAnswer] = useState(false);
+  const [audioHelper] = useState(() => new AudioHelper());
+  const [soundEnabled, setSoundEnabled] = useState(() => audioHelper.isEnabled());
 
   const question = questions[currentQuestion];
   const progress = ((currentQuestion + 1) / questions.length) * 100;
+  const progressText = getProgressText(progress);
 
-  const handleAnswer = (value: any) => {
-    setAnswers((prev) => ({ ...prev, [question.id]: value }));
-    setLoading(true);
+  useEffect(() => {
+    // Play milestone sounds at 50% and 100%
+    if (progress === 50 || progress === 100) {
+      audioHelper.playMilestoneSound();
+    }
+  }, [progress]);
 
-    // Loading: 1.5s
+  const handleOptionClick = (option: any) => {
+    const isGood = question.options.find(opt => opt.value === option.value)?.isGood || false;
+    
+    setSelectedOption(option.value);
+    setIsGoodAnswer(isGood);
+    setAnswers(prev => ({ ...prev, [question.id]: option.value }));
+    
+    // Play sound
+    if (isGood) {
+      audioHelper.playGoodSound();
+    } else {
+      audioHelper.playBadSound();
+    }
+    
+    // Show tip after 300ms
     setTimeout(() => {
-      setLoading(false);
-      setShowInsight(true);
+      setShowTip(true);
+    }, 300);
+  };
 
-      // Insight visível: 5s
-      setTimeout(() => {
-        // Set transitioning before hiding insight to prevent flash
-        setIsTransitioning(true);
+  const handleNext = () => {
+    setShowTip(false);
+    setSelectedOption(null);
+    
+    setTimeout(() => {
+      if (currentQuestion < questions.length - 1) {
+        setCurrentQuestion(prev => prev + 1);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        // Ensure attendRate is set to a default value for compatibility
+        const finalAnswers: Partial<Answers> = {
+          ...answers,
+          attendRate: 7, // Default value for compatibility
+          goals: ['better_conversion'], // Default goal
+        };
+        onComplete(finalAnswers);
+      }
+    }, 300);
+  };
 
-        // Small delay then transition
-        setTimeout(() => {
-          setShowInsight(false);
-
-          if (currentQuestion < questions.length - 1) {
-            setCurrentQuestion((prev) => prev + 1);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            // Reset transitioning after question changes
-            setTimeout(() => setIsTransitioning(false), 100);
-          } else {
-            onComplete({ ...answers, [question.id]: value });
-          }
-        }, 300);
-      }, 5000);
-    }, 1500);
+  const toggleSound = () => {
+    const newState = audioHelper.toggle();
+    setSoundEnabled(newState);
   };
 
   return (
-    <section className="min-h-screen px-4 py-12 flex items-center justify-center">
-      <div className="fixed top-0 left-0 right-0 bg-card border-b border-border z-50 p-4">
-        <div className="max-w-2xl mx-auto">
-          <div className="flex items-center justify-center gap-3 mb-3">
-            <img src={eucalyptusLogo} alt="Eucalyptus" className="w-12 h-12 sm:w-14 sm:h-14" />
-            <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground">EUCALYPTUS</h2>
+    <div className="min-h-screen px-4 py-12 flex items-center justify-center" style={{ backgroundColor: '#fdf4e0' }}>
+      {/* Progress Bar - Sticky */}
+      <div className="fixed top-0 left-0 right-0 z-50 p-4" style={{ backgroundColor: '#fdf4e0', height: '60px', borderBottom: '1px solid #e8dcc8' }}>
+        <div className="max-w-2xl mx-auto flex items-center gap-3">
+          <span className="text-2xl">🎯</span>
+          <div className="flex-1">
+            <Progress 
+              value={progress} 
+              className="h-2" 
+              style={{ 
+                background: '#e8dcc8',
+              }} 
+            />
           </div>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium">
-              Pergunta {currentQuestion + 1} de {questions.length}
-            </span>
-            <span className="text-sm text-muted-foreground">{Math.round(progress)}%</span>
-          </div>
-          <Progress value={progress} className="h-2" />
+          <span className="text-sm font-medium" style={{ color: '#595d5b' }}>{Math.round(progress)}%</span>
+          <span className="text-sm font-bold hidden sm:inline" style={{ color: '#b87353' }}>{progressText}</span>
+          <button 
+            onClick={toggleSound}
+            className="p-2 rounded-lg hover:bg-white/50 transition-colors"
+            aria-label={soundEnabled ? 'Desativar som' : 'Ativar som'}
+          >
+            {soundEnabled ? (
+              <Volume2 className="w-5 h-5" style={{ color: '#595d5b' }} />
+            ) : (
+              <VolumeX className="w-5 h-5" style={{ color: '#8d837c' }} />
+            )}
+          </button>
         </div>
       </div>
 
-      <div className="max-w-2xl w-full mx-auto">
+      <div className="max-w-2xl w-full mx-auto mt-16">
+        {/* Logo + Title */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-8"
+        >
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <img src={eucalyptusLogo} alt="Eucalyptus" className="w-12 h-12 sm:w-14 sm:h-14" />
+            <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: '#595d5b' }}>EUCALYPTUS</h2>
+          </div>
+          <p className="text-sm" style={{ color: '#8d837c' }}>Diagnóstico de Conversão</p>
+        </motion.div>
+
+        {/* Form Card */}
         <AnimatePresence mode="wait">
-          {!showInsight && !isTransitioning ? (
-            <motion.div
-              key={`question-${currentQuestion}`}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-              className="bg-card rounded-2xl p-4 sm:p-6 md:p-8 shadow-lg border border-border"
-            >
-              <h3 className="text-xl sm:text-2xl font-bold mb-2">{question.text}</h3>
-              {question.helper && <p className="text-xs sm:text-sm text-muted-foreground mb-6">{question.helper}</p>}
+          <motion.div
+            key={`question-${currentQuestion}`}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+            className="rounded-2xl p-6 sm:p-8 shadow-lg"
+            style={{ backgroundColor: '#ffffff', border: '1px solid #e8dcc8' }}
+          >
+            <h3 className="text-xl sm:text-2xl font-bold mb-6" style={{ color: '#595d5b' }}>
+              {question.text}
+            </h3>
 
-              {question.type === 'slider' && (
-                <div className="space-y-6">
-                  <Slider
-                    value={[(answers[question.id] as number) ?? 5]}
-                    onValueChange={(v) => setAnswers((prev) => ({ ...prev, [question.id]: v[0] }))}
-                    min={question.min}
-                    max={question.max}
-                    step={1}
-                    className="mb-4"
-                  />
-                  <p className="text-center text-2xl sm:text-3xl font-bold text-primary">{(answers[question.id] as number) ?? 5}</p>
-                  <Button onClick={() => handleAnswer((answers[question.id] as number) ?? 5)} size="lg" className="w-full text-sm sm:text-base">
-                    CONTINUAR
-                  </Button>
-                </div>
-              )}
+            <div className="space-y-3">
+              {question.options.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => handleOptionClick(option)}
+                  disabled={showTip}
+                  className="w-full p-4 text-left rounded-xl transition-all text-base sm:text-lg"
+                  style={{
+                    backgroundColor: selectedOption === option.value ? '#b87353' : '#fdf4e0',
+                    border: `2px solid ${selectedOption === option.value ? '#b87353' : '#e8dcc8'}`,
+                    color: selectedOption === option.value ? '#ffffff' : '#595d5b',
+                    cursor: showTip ? 'not-allowed' : 'pointer',
+                    opacity: showTip && selectedOption !== option.value ? 0.5 : 1,
+                  }}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
 
-              {question.type === 'cards' && question.options && (
-                <div className="space-y-3">
-                  {question.options.map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={() => handleAnswer(option.value)}
-                      className="w-full p-3 sm:p-4 text-left bg-muted/20 hover:bg-primary/10 border border-border hover:border-primary rounded-xl transition-all"
-                    >
-                      <span className="text-sm sm:text-base md:text-lg">
-                        {option.emoji && <span className="mr-2">{option.emoji}</span>}
-                        {option.label}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </motion.div>
-          ) : showInsight ? (
-            <motion.div
-              key={`insight-${currentQuestion}`}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.3 }}
-              className="bg-primary/10 rounded-2xl p-8 border-2 border-primary"
-            >
-              {loading ? (
-                <div className="text-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mx-auto mb-4"></div>
-                  <p className="text-lg">Analisando...</p>
-                </div>
-              ) : (
-                <div>
-                  <div className="flex items-center gap-3 mb-4">
-                    <question.insight.icon className="w-8 h-8 text-primary" />
-                    <h4 className="text-2xl font-bold">{question.insight.title}</h4>
+            {/* Tip Card - Inline */}
+            <AnimatePresence>
+              {showTip && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                  className="mt-6 rounded-xl p-6 shadow-lg"
+                  style={{
+                    backgroundColor: '#ffffff',
+                    border: '2px solid #b87353',
+                    boxShadow: '0 4px 12px rgba(184, 115, 83, 0.15)',
+                  }}
+                >
+                  <div className="flex items-start gap-4 mb-4">
+                    <span className="text-4xl">{isGoodAnswer ? question.goodTip.emoji : question.badTip.emoji}</span>
+                    <div className="flex-1">
+                      <h4 className="text-xl font-bold mb-2" style={{ color: '#595d5b' }}>
+                        {isGoodAnswer ? question.goodTip.title : question.badTip.title}
+                      </h4>
+                      <p className="text-base" style={{ color: '#595d5b' }}>
+                        {isGoodAnswer ? question.goodTip.text : question.badTip.text}
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-lg whitespace-pre-line">
-                    {typeof question.insight.body === 'function'
-                      ? question.insight.body(answers[question.id])
-                      : question.insight.body}
-                  </p>
-                </div>
+                  
+                  <button
+                    onClick={handleNext}
+                    className="w-full py-3 px-8 rounded-lg font-semibold text-white transition-all"
+                    style={{
+                      background: 'linear-gradient(135deg, #b87353 0%, #edd08c 100%)',
+                      boxShadow: '0 2px 8px rgba(184, 115, 83, 0.3)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'scale(1.02)';
+                      e.currentTarget.style.filter = 'brightness(1.1)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.filter = 'brightness(1)';
+                    }}
+                    onMouseDown={(e) => {
+                      e.currentTarget.style.transform = 'scale(0.98)';
+                    }}
+                    onMouseUp={(e) => {
+                      e.currentTarget.style.transform = 'scale(1.02)';
+                    }}
+                  >
+                    {currentQuestion === questions.length - 1 ? 'Ver Diagnóstico Completo 🎯' : 'Entendi, próxima →'}
+                  </button>
+                </motion.div>
               )}
-            </motion.div>
-          ) : null}
+            </AnimatePresence>
+          </motion.div>
         </AnimatePresence>
       </div>
-    </section>
+    </div>
   );
 }
