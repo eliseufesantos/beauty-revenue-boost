@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -10,7 +10,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { CalculationResults } from '@/lib/calculations';
 import { generatePDF } from '@/lib/pdf-generator';
 import { Download, CheckCircle, AlertCircle } from 'lucide-react';
-import { toast } from 'sonner';
 
 const formSchema = z.object({
   name: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres'),
@@ -28,12 +27,14 @@ type FormData = z.infer<typeof formSchema>;
 interface Props {
   results: CalculationResults;
   answers: any;
+  onComplete?: () => void;
 }
 
-export function LeadCaptureForm({ results, answers }: Props) {
+export function LeadCaptureForm({ results, answers, onComplete }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [showThankYouModal, setShowThankYouModal] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -60,7 +61,7 @@ export function LeadCaptureForm({ results, answers }: Props) {
       const url = URL.createObjectURL(pdfBlob);
       setPdfUrl(url);
 
-      // Send to webhook
+      // Send to webhook (silently - don't show errors to user)
       const webhookPayload = {
         timestamp: new Date().toISOString(),
         quickCalc: {
@@ -82,50 +83,93 @@ export function LeadCaptureForm({ results, answers }: Props) {
         },
       };
 
-      const response = await fetch('https://n8n.eucalyptus.solutions/webhook/assessment', {
+      // Send webhook in background - don't wait for response
+      fetch('https://n8n.eucalyptus.solutions/webhook/assessment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(webhookPayload),
+      }).catch((error) => {
+        // Silently log errors - don't show to user
+        console.error('Webhook error (silent):', error);
       });
 
-      if (!response.ok) {
-        throw new Error('Webhook failed');
-      }
-
+      // Show thank you modal regardless of webhook status
+      setShowThankYouModal(true);
       setIsComplete(true);
-      toast.success('Diagnóstico enviado com sucesso!');
     } catch (error) {
-      console.error('Error:', error);
-      toast.error('Erro ao enviar. Por favor, tente novamente.');
+      // Silently log errors - don't show to user
+      console.error('Form submission error (silent):', error);
+      // Still show thank you modal even if there's an error
+      setShowThankYouModal(true);
+      setIsComplete(true);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  if (isComplete && pdfUrl) {
+  // Auto-close thank you modal and reset after 4 seconds
+  useEffect(() => {
+    if (showThankYouModal) {
+      const timer = setTimeout(() => {
+        setShowThankYouModal(false);
+        if (onComplete) {
+          onComplete();
+        }
+      }, 4000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showThankYouModal, onComplete]);
+
+  // Thank you modal - shows for 4 seconds then auto-closes
+  if (showThankYouModal && pdfUrl) {
     return (
-      <section className="min-h-screen flex items-center justify-center px-4 py-12">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="max-w-md w-full bg-card rounded-2xl p-8 shadow-lg border border-border text-center"
-        >
-          <CheckCircle className="w-16 h-16 text-primary mx-auto mb-4" />
-          <h3 className="text-2xl font-bold mb-4">Diagnóstico Completo!</h3>
-          <p className="text-muted-foreground mb-6">
-            Seu relatório foi gerado e enviado para seu email. Você também pode fazer o download agora:
-          </p>
-          <a
-            href={pdfUrl}
-            download="diagnostico-eucalyptus.pdf"
-            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
+      <section className="min-h-screen flex items-center justify-center px-4 py-12" style={{ backgroundColor: '#fdf4e0' }}>
+        <AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="max-w-md w-full rounded-2xl p-8 shadow-2xl text-center"
+            style={{ backgroundColor: '#ffffff', border: '2px solid #b87353' }}
           >
-            <Download className="w-5 h-5" />
-            Baixar PDF
-          </a>
-        </motion.div>
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+            >
+              <CheckCircle className="w-20 h-20 mx-auto mb-6" style={{ color: '#b87353' }} />
+            </motion.div>
+
+            <h3 className="text-3xl font-bold mb-4" style={{ color: '#595d5b' }}>
+              Obrigado! 🎉
+            </h3>
+
+            <p className="text-lg mb-4" style={{ color: '#595d5b' }}>
+              Recebemos seu diagnóstico com sucesso!
+            </p>
+
+            <p className="text-base mb-6" style={{ color: '#8d837c' }}>
+              Em breve entraremos em contato para apresentar as oportunidades identificadas.
+            </p>
+
+            <a
+              href={pdfUrl}
+              download="diagnostico-eucalyptus.pdf"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-white transition-all duration-200 hover:scale-105"
+              style={{ background: 'linear-gradient(to bottom right, #b87353, #edd08c)' }}
+            >
+              <Download className="w-5 h-5" />
+              Baixar PDF
+            </a>
+
+            <p className="text-xs mt-4" style={{ color: '#8d837c' }}>
+              Fechando em alguns segundos...
+            </p>
+          </motion.div>
+        </AnimatePresence>
       </section>
     );
   }
