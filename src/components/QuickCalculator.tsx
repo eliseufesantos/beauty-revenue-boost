@@ -54,7 +54,7 @@ export function QuickCalculator({ onCalculate, onContinue }: Props) {
           </h1>
 
           <p className="text-base sm:text-lg text-muted-foreground text-center mb-12 px-2">
-            Diagnóstico RADIX: descubra em 60 segundo as
+            Diagnóstico RADIX: descubra em 60 segundo as 
             <br className="hidden sm:block" />
             oportunidades invisíveis na sua operação.
           </p>
