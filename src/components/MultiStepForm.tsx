@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
+import { Slider } from '@/components/ui/slider';
 import { Volume2, VolumeX } from 'lucide-react';
 import { Answers } from '@/lib/calculations';
 import eucalyptusLogo from '@/assets/eucalyptus-logo.png';
@@ -13,8 +14,16 @@ interface Props {
 interface Question {
   id: keyof Answers;
   text: string;
-  type: 'cards';
-  options: Array<{ value: any; label: string; isGood: boolean }>;
+  type: 'cards' | 'slider';
+  options?: Array<{ value: any; label: string; isGood: boolean }>;
+  sliderConfig?: {
+    min: number;
+    max: number;
+    step: number;
+    defaultValue: number;
+    formatLabel: (value: number) => string;
+    getThreshold: () => number; // valor acima do qual é considerado bom
+  };
   goodTip: { emoji: string; title: string; text: string };
   badTip: { emoji: string; title: string; text: string };
 }
@@ -44,13 +53,15 @@ const questions: Question[] = [
   {
     id: 'leads',
     text: 'Quantos leads você recebe por mês?',
-    type: 'cards',
-    options: [
-      { value: 150, label: '100+ leads/mês', isGood: true },
-      { value: 75, label: '50-100 leads/mês', isGood: true },
-      { value: 30, label: 'Menos de 50', isGood: false },
-      { value: 0, label: 'Não sei / Não controlo', isGood: false },
-    ],
+    type: 'slider',
+    sliderConfig: {
+      min: 0,
+      max: 200,
+      step: 5,
+      defaultValue: 50,
+      formatLabel: (value) => value === 0 ? 'Não sei' : `${value} leads`,
+      getThreshold: () => 50,
+    },
     goodTip: {
       emoji: '🎯',
       title: 'Volume excelente!',
@@ -169,13 +180,15 @@ const questions: Question[] = [
   {
     id: 'ticket',
     text: 'Qual o ticket médio dos seus procedimentos? (última pergunta!)',
-    type: 'cards',
-    options: [
-      { value: 2500, label: 'R$ 2.000+', isGood: true },
-      { value: 1500, label: 'R$ 1.000 a R$ 2.000', isGood: true },
-      { value: 750, label: 'R$ 500 a R$ 1.000', isGood: false },
-      { value: 300, label: 'Menos de R$ 500', isGood: false },
-    ],
+    type: 'slider',
+    sliderConfig: {
+      min: 200,
+      max: 5000,
+      step: 100,
+      defaultValue: 1500,
+      formatLabel: (value) => `R$ ${value.toLocaleString('pt-BR')}`,
+      getThreshold: () => 1000,
+    },
     goodTip: {
       emoji: '🎉',
       title: 'Você entende ROI!',
@@ -284,6 +297,7 @@ export function MultiStepForm({ onComplete, initialAnswers }: Props) {
   const [answers, setAnswers] = useState<Partial<Answers>>(initialAnswers);
   const [showTip, setShowTip] = useState(false);
   const [selectedOption, setSelectedOption] = useState<any>(null);
+  const [sliderValue, setSliderValue] = useState<number | null>(null);
   const [isGoodAnswer, setIsGoodAnswer] = useState(false);
   const [audioHelper] = useState(() => new AudioHelper());
   const [soundEnabled, setSoundEnabled] = useState(() => audioHelper.isEnabled());
@@ -300,7 +314,7 @@ export function MultiStepForm({ onComplete, initialAnswers }: Props) {
   }, [progress]);
 
   const handleOptionClick = (option: any) => {
-    const isGood = question.options.find(opt => opt.value === option.value)?.isGood || false;
+    const isGood = question.options?.find(opt => opt.value === option.value)?.isGood || false;
     
     setSelectedOption(option.value);
     setIsGoodAnswer(isGood);
@@ -319,9 +333,36 @@ export function MultiStepForm({ onComplete, initialAnswers }: Props) {
     }, 300);
   };
 
+  const handleSliderChange = (value: number[]) => {
+    setSliderValue(value[0]);
+  };
+
+  const handleSliderConfirm = () => {
+    if (sliderValue === null || !question.sliderConfig) return;
+    
+    const threshold = question.sliderConfig.getThreshold();
+    const isGood = sliderValue >= threshold;
+    
+    setIsGoodAnswer(isGood);
+    setAnswers(prev => ({ ...prev, [question.id]: sliderValue }));
+    
+    // Play sound
+    if (isGood) {
+      audioHelper.playGoodSound();
+    } else {
+      audioHelper.playBadSound();
+    }
+    
+    // Show tip after 300ms
+    setTimeout(() => {
+      setShowTip(true);
+    }, 300);
+  };
+
   const handleNext = () => {
     setShowTip(false);
     setSelectedOption(null);
+    setSliderValue(null);
     
     setTimeout(() => {
       if (currentQuestion < questions.length - 1) {
@@ -404,25 +445,72 @@ export function MultiStepForm({ onComplete, initialAnswers }: Props) {
               {question.text}
             </h3>
 
-            <div className="space-y-3">
-              {question.options.map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => handleOptionClick(option)}
-                  disabled={showTip}
-                  className="w-full p-4 text-left rounded-xl transition-all text-base sm:text-lg"
-                  style={{
-                    backgroundColor: selectedOption === option.value ? '#b87353' : '#fdf4e0',
-                    border: `2px solid ${selectedOption === option.value ? '#b87353' : '#e8dcc8'}`,
-                    color: selectedOption === option.value ? '#ffffff' : '#595d5b',
-                    cursor: showTip ? 'not-allowed' : 'pointer',
-                    opacity: showTip && selectedOption !== option.value ? 0.5 : 1,
-                  }}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
+            {question.type === 'cards' && question.options && (
+              <div className="space-y-3">
+                {question.options.map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => handleOptionClick(option)}
+                    disabled={showTip}
+                    className="w-full p-4 text-left rounded-xl transition-all text-base sm:text-lg"
+                    style={{
+                      backgroundColor: selectedOption === option.value ? '#b87353' : '#fdf4e0',
+                      border: `2px solid ${selectedOption === option.value ? '#b87353' : '#e8dcc8'}`,
+                      color: selectedOption === option.value ? '#ffffff' : '#595d5b',
+                      cursor: showTip ? 'not-allowed' : 'pointer',
+                      opacity: showTip && selectedOption !== option.value ? 0.5 : 1,
+                    }}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {question.type === 'slider' && question.sliderConfig && (
+              <div className="space-y-6">
+                <div className="px-2">
+                  <div className="text-center mb-4">
+                    <span className="text-3xl font-bold" style={{ color: '#b87353' }}>
+                      {question.sliderConfig.formatLabel(sliderValue ?? question.sliderConfig.defaultValue)}
+                    </span>
+                  </div>
+                  <Slider
+                    value={[sliderValue ?? question.sliderConfig.defaultValue]}
+                    onValueChange={handleSliderChange}
+                    min={question.sliderConfig.min}
+                    max={question.sliderConfig.max}
+                    step={question.sliderConfig.step}
+                    disabled={showTip}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between mt-2 text-sm" style={{ color: '#8d837c' }}>
+                    <span>{question.sliderConfig.formatLabel(question.sliderConfig.min)}</span>
+                    <span>{question.sliderConfig.formatLabel(question.sliderConfig.max)}</span>
+                  </div>
+                </div>
+                {!showTip && (
+                  <button
+                    onClick={handleSliderConfirm}
+                    className="w-full py-3 px-8 rounded-lg font-semibold text-white transition-all"
+                    style={{
+                      background: 'linear-gradient(135deg, #b87353 0%, #edd08c 100%)',
+                      boxShadow: '0 2px 8px rgba(184, 115, 83, 0.3)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'scale(1.02)';
+                      e.currentTarget.style.filter = 'brightness(1.1)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.filter = 'brightness(1)';
+                    }}
+                  >
+                    Confirmar
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* Tip Card - Inline */}
             <AnimatePresence>
