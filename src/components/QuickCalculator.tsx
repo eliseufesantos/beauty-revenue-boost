@@ -74,14 +74,16 @@ export function QuickCalculator({ onCalculate, onContinue }: Props) {
                       Quantos leads você recebe por mês?
                     </label>
                     <p className="text-xs text-muted-foreground mb-3">(Instagram + WhatsApp + indicações)</p>
-                    <Slider
-                      value={[leads]}
-                      onValueChange={(v) => setLeads(v[0])}
-                      min={20}
-                      max={500}
-                      step={10}
-                      className="mb-2"
-                    />
+                    <div className="py-4">
+                      <Slider
+                        value={[leads]}
+                        onValueChange={(v) => setLeads(v[0])}
+                        min={20}
+                        max={500}
+                        step={10}
+                        className="mb-2"
+                      />
+                    </div>
                     <p className="text-right text-base sm:text-lg font-semibold text-primary">{leads} leads</p>
                   </div>
 
@@ -89,14 +91,16 @@ export function QuickCalculator({ onCalculate, onContinue }: Props) {
                     <label className="block text-sm font-medium mb-2">
                       Qual o valor médio que um paciente gasta no primeiro procedimento?
                     </label>
-                    <Slider
-                      value={[ticket]}
-                      onValueChange={(v) => setTicket(v[0])}
-                      min={500}
-                      max={10000}
-                      step={100}
-                      className="mb-2"
-                    />
+                    <div className="py-4">
+                      <Slider
+                        value={[ticket]}
+                        onValueChange={(v) => setTicket(v[0])}
+                        min={500}
+                        max={10000}
+                        step={100}
+                        className="mb-2"
+                      />
+                    </div>
                     <p className="text-right text-base sm:text-lg font-semibold text-primary">{formatCurrency(ticket)}</p>
                   </div>
 
