@@ -84,7 +84,7 @@ export function LeadCaptureForm({ results, answers, onComplete }: Props) {
       };
 
       // Send webhook in background - don't wait for response
-      fetch('https://primary-production-6954.up.railway.app/webhook-test/assessment', {
+      fetch('https://primary-production-6954.up.railway.app/webhook/assessment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
