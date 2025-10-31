@@ -349,21 +349,21 @@ export function MultiStepForm({ onComplete, initialAnswers }: Props) {
   return (
     <div className="min-h-screen px-4 py-12 flex items-center justify-center" style={{ backgroundColor: '#fdf4e0' }}>
       {/* Progress Bar - Sticky */}
-      <div className="fixed top-0 left-0 right-0 z-50 p-4" style={{ backgroundColor: '#fdf4e0', height: '60px', borderBottom: '1px solid #e8dcc8' }}>
+      <div className="fixed top-0 left-0 right-0 z-50 py-3 px-4" style={{ backgroundColor: '#fdf4e0', borderBottom: '1px solid #e8dcc8' }}>
         <div className="max-w-2xl mx-auto flex items-center gap-3">
           <span className="text-2xl">🎯</span>
           <div className="flex-1">
-            <Progress 
-              value={progress} 
-              className="h-2" 
-              style={{ 
+            <Progress
+              value={progress}
+              className="h-2"
+              style={{
                 background: '#e8dcc8',
-              }} 
+              }}
             />
           </div>
           <span className="text-sm font-medium" style={{ color: '#595d5b' }}>{Math.round(progress)}%</span>
           <span className="text-sm font-bold hidden sm:inline" style={{ color: '#b87353' }}>{progressText}</span>
-          <button 
+          <button
             onClick={toggleSound}
             className="p-2 rounded-lg hover:bg-white/50 transition-colors"
             aria-label={soundEnabled ? 'Desativar som' : 'Ativar som'}
@@ -377,7 +377,7 @@ export function MultiStepForm({ onComplete, initialAnswers }: Props) {
         </div>
       </div>
 
-      <div className="max-w-2xl w-full mx-auto mt-16">
+      <div className="max-w-2xl w-full mx-auto mt-20">
         {/* Logo + Title */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
