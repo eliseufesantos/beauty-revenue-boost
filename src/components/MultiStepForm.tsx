@@ -385,7 +385,7 @@ export function MultiStepForm({ onComplete, initialAnswers }: Props) {
           className="text-center mb-8"
         >
           <div className="flex items-center justify-center gap-3 mb-2">
-            <img src={eucalyptusLogo} alt="Eucalyptus" className="w-12 h-12 sm:w-14 sm:h-14" />
+            <img src={eucalyptusLogo} alt="Eucalyptus" className="w-12 h-12 sm:w-14 sm:h-14" loading="eager" decoding="async" />
             <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: '#595d5b' }}>EUCALYPTUS</h2>
           </div>
           <p className="text-sm" style={{ color: '#8d837c' }}>Diagnóstico de Conversão</p>

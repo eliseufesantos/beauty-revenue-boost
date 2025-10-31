@@ -1,13 +1,15 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, lazy, Suspense } from 'react';
 import { QuickCalculator } from '@/components/QuickCalculator';
 import { TrustBuilder } from '@/components/TrustBuilder';
 import { MultiStepForm } from '@/components/MultiStepForm';
 import { AnalyzingLoader } from '@/components/AnalyzingLoader';
-import { ResultsDashboard } from '@/components/ResultsDashboard';
-import { LeadCaptureForm } from '@/components/LeadCaptureForm';
 import { useAssessment } from '@/hooks/useAssessment';
 import { calculateLeakages } from '@/lib/calculations';
 import { Answers } from '@/lib/calculations';
+
+// Lazy load heavy components
+const ResultsDashboard = lazy(() => import('@/components/ResultsDashboard').then(m => ({ default: m.ResultsDashboard })));
+const LeadCaptureForm = lazy(() => import('@/components/LeadCaptureForm').then(m => ({ default: m.LeadCaptureForm })));
 
 type Section = 'quick' | 'trust' | 'form' | 'analyzing' | 'results' | 'lead';
 
@@ -96,13 +98,17 @@ const Index = () => {
 
       {currentSection === 'results' && results && (
         <div id="section-results" ref={sectionRefs.results}>
-          <ResultsDashboard results={results} />
+          <Suspense fallback={<AnalyzingLoader onComplete={() => {}} />}>
+            <ResultsDashboard results={results} />
+          </Suspense>
         </div>
       )}
 
       {currentSection === 'lead' && results && (
         <div id="section-lead" ref={sectionRefs.lead}>
-          <LeadCaptureForm results={results} answers={state.answers} />
+          <Suspense fallback={<AnalyzingLoader onComplete={() => {}} />}>
+            <LeadCaptureForm results={results} answers={state.answers} />
+          </Suspense>
         </div>
       )}
     </div>

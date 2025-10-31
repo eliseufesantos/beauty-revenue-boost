@@ -23,7 +23,7 @@ export function TrustBuilder({ onStart }: Props) {
       >
         <div className="bg-card rounded-2xl p-4 sm:p-6 md:p-8 shadow-lg border border-border">
           <div className="flex items-center justify-center gap-3 mb-6">
-            <img src={eucalyptusLogo} alt="Eucalyptus" className="w-14 h-14 sm:w-16 sm:h-16" />
+            <img src={eucalyptusLogo} alt="Eucalyptus" className="w-14 h-14 sm:w-16 sm:h-16" loading="eager" decoding="async" />
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">EUCALYPTUS</h2>
           </div>
 
@@ -37,10 +37,12 @@ export function TrustBuilder({ onStart }: Props) {
               <div className="relative group">
                 <div className="absolute -inset-1 bg-gradient-to-r from-primary to-primary/50 rounded-full blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
                 <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-3 border-background shadow-xl">
-                  <img 
-                    src={fotoEliseu} 
-                    alt="Eliseu Mendes" 
+                  <img
+                    src={fotoEliseu}
+                    alt="Eliseu Mendes"
                     className="w-full h-full object-cover"
+                    loading="lazy"
+                    decoding="async"
                   />
                 </div>
               </div>
