@@ -65,6 +65,12 @@ const Index = () => {
     }, 10000);
   };
 
+  const handleLeadCaptureComplete = () => {
+    // Reset to initial state
+    setCurrentSection('quick');
+    setResults(null);
+  };
+
   return (
     <div className="bg-background">
       {currentSection === 'quick' && (
@@ -102,7 +108,7 @@ const Index = () => {
 
       {currentSection === 'lead' && results && (
         <div id="section-lead" ref={sectionRefs.lead}>
-          <LeadCaptureForm results={results} answers={state.answers} />
+          <LeadCaptureForm results={results} answers={state.answers} onComplete={handleLeadCaptureComplete} />
         </div>
       )}
     </div>
