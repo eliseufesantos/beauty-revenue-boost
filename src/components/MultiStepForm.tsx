@@ -51,29 +51,6 @@ const questions: Question[] = [
     },
   },
   {
-    id: 'leads',
-    text: 'Quantos leads você recebe por mês?',
-    type: 'slider',
-    sliderConfig: {
-      min: 0,
-      max: 200,
-      step: 5,
-      defaultValue: 50,
-      formatLabel: (value) => value === 0 ? 'Não sei' : `${value} leads`,
-      getThreshold: () => 50,
-    },
-    goodTip: {
-      emoji: '🎯',
-      title: 'Volume excelente!',
-      text: 'Agora é converter de forma previsível.',
-    },
-    badTip: {
-      emoji: '💭',
-      title: 'Volume moderado.',
-      text: 'Focar em converter mais dos que já tem.',
-    },
-  },
-  {
     id: 'hasFollowUp',
     text: 'Você tem um processo de follow-up estruturado?',
     type: 'cards',
@@ -117,13 +94,15 @@ const questions: Question[] = [
   {
     id: 'conversionRate',
     text: 'De cada 10 pessoas que AGENDAM, quantas FECHAM?',
-    type: 'cards',
-    options: [
-      { value: 4, label: '30% ou mais (3+)', isGood: true },
-      { value: 2.5, label: '20-30% (2-3)', isGood: true },
-      { value: 1.5, label: '10-20% (1-2)', isGood: false },
-      { value: 0.5, label: 'Menos de 10% ou não sei', isGood: false },
-    ],
+    type: 'slider',
+    sliderConfig: {
+      min: 0,
+      max: 10,
+      step: 1,
+      defaultValue: 3,
+      formatLabel: (value) => value === 0 ? 'Não sei' : `${value} de 10`,
+      getThreshold: () => 2,
+    },
     goodTip: {
       emoji: '💡',
       title: 'Taxa sólida!',
@@ -159,13 +138,15 @@ const questions: Question[] = [
   {
     id: 'manualHours',
     text: 'Quantas horas POR DIA você gasta respondendo WhatsApp/Instagram?',
-    type: 'cards',
-    options: [
-      { value: 1, label: 'Menos de 2h', isGood: true },
-      { value: 3, label: '2-4h', isGood: false },
-      { value: 5, label: '4-6h', isGood: false },
-      { value: 7, label: 'Mais de 6h', isGood: false },
-    ],
+    type: 'slider',
+    sliderConfig: {
+      min: 0,
+      max: 10,
+      step: 0.5,
+      defaultValue: 3,
+      formatLabel: (value) => value === 0 ? 'Não sei' : `${value}h`,
+      getThreshold: () => 2,
+    },
     goodTip: {
       emoji: '🎯',
       title: 'Operação enxuta!',
@@ -175,29 +156,6 @@ const questions: Question[] = [
       emoji: '⚠️',
       title: '4h/dia = 80h/mês desperdiçadas.',
       text: 'R$ 6-10k jogados fora.',
-    },
-  },
-  {
-    id: 'ticket',
-    text: 'Qual o ticket médio dos seus procedimentos? (última pergunta!)',
-    type: 'slider',
-    sliderConfig: {
-      min: 200,
-      max: 5000,
-      step: 100,
-      defaultValue: 1500,
-      formatLabel: (value) => `R$ ${value.toLocaleString('pt-BR')}`,
-      getThreshold: () => 1000,
-    },
-    goodTip: {
-      emoji: '🎉',
-      title: 'Você entende ROI!',
-      text: 'Payback em 45-90 dias.',
-    },
-    badTip: {
-      emoji: '💭',
-      title: 'Vamos mostrar os números.',
-      text: 'Sistema próprio < 2 meses de agência.',
     },
   },
 ];
@@ -369,11 +327,14 @@ export function MultiStepForm({ onComplete, initialAnswers }: Props) {
         setCurrentQuestion(prev => prev + 1);
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
-        // Ensure attendRate is set to a default value for compatibility
+        // Ensure all required fields have default values for compatibility
         const finalAnswers: Partial<Answers> = {
           ...answers,
           attendRate: 7, // Default value for compatibility
           goals: ['better_conversion'], // Default goal
+          // Set default values for removed questions if not present
+          leads: (answers.leads as number) || 50,
+          ticket: (answers.ticket as number) || 1500,
         };
         onComplete(finalAnswers);
       }
