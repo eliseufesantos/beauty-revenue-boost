@@ -8,58 +8,58 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Eucalyptus Brand Colors */
-    --dark-gray: 0 2% 36%;
-    --light-beige: 42 88% 93%;
-    --gray-brown: 25 10% 52%;
-    --terracotta: 16 43% 52%;
-    --soft-gold: 42 65% 74%;
-    
-    /* Design System */
-    --background: 42 88% 93%;
-    --foreground: 0 2% 36%;
+    /* PALETA EUCALYPTUS - CORES EXATAS (ÚNICA PERMITIDA) */
+    --text-primary: 150 3% 35%;        /* #595d5b - Cinza escuro (textos) */
+    --bg-primary: 42 88% 93%;          /* #fdf4e0 - Bege claro (fundo principal) */
+    --accent: 25 10% 52%;              /* #8d837c - Marrom acinzentado (detalhes) */
+    --highlight: 16 43% 52%;           /* #b87353 - Terracota (botões, destaques) */
+    --secondary: 42 65% 74%;           /* #edd08c - Dourado suave (textos secundários) */
 
-    --card: 0 0% 100%;
-    --card-foreground: 0 2% 36%;
+    /* CORES ADICIONAIS DERIVADAS */
+    --card-bg: 0 0% 100%;              /* #ffffff - Branco puro para contraste */
+    --button-hover: 16 43% 46%;        /* #a86545 - Terracota mais escuro */
+    --progress-bg: 42 40% 85%;         /* #e8dcc8 - Bege mais escuro */
+    --hover-bg: 42 75% 98%;            /* #fefbf5 - Bege ultra claro */
+    --selected-bg: 42 88% 96%;         /* #fef8ed - Bege claro com toque dourado */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 2% 36%;
+    /* Design System Mapeado */
+    --background: var(--bg-primary);
+    --foreground: var(--text-primary);
 
-    --primary: 16 43% 52%;
+    --card: var(--card-bg);
+    --card-foreground: var(--text-primary);
+
+    --popover: var(--card-bg);
+    --popover-foreground: var(--text-primary);
+
+    --primary: var(--highlight);
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 42 65% 74%;
-    --secondary-foreground: 0 2% 36%;
+    --secondary: var(--secondary);
+    --secondary-foreground: var(--text-primary);
 
-    --muted: 25 10% 52%;
-    --muted-foreground: 0 2% 60%;
+    --muted: var(--accent);
+    --muted-foreground: var(--accent);
 
-    --accent: 42 65% 74%;
-    --accent-foreground: 0 2% 36%;
+    --accent: var(--accent);
+    --accent-foreground: var(--text-primary);
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 25 10% 85%;
-    --input: 25 10% 90%;
-    --ring: 16 43% 52%;
+    --border: var(--progress-bg);
+    --input: var(--progress-bg);
+    --ring: var(--highlight);
 
     --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
